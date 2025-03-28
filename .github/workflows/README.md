@@ -1,1 +1,1 @@
-# spotify-dwh-insights
+# 🔄 Integración y Despliegue Automático (`.github/workflows/`)

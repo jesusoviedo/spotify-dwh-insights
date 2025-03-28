@@ -1,1 +1,1 @@
-# spotify-dwh-insights
+# 📈 Visualización de Datos (`visualizations/`)

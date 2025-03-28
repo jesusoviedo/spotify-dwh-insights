@@ -4,11 +4,12 @@ verify_ssl = true
 name = "pypi"
 
 [packages]
-redis = "*"
 requests = "*"
 pandas = "*"
 pyarrow = "*"
 google-cloud-storage = "*"
+dlt = {extras = ["bigquery"], version = "*"}
+google-cloud-bigquery-storage = "*"
 
 [dev-packages]
 

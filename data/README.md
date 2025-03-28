@@ -1,4 +1,4 @@
-# Servicios de la API de Spotify
+# 📊 Entendiendo los Datos (`data/`)
 
 Este proyecto utiliza la API de Spotify para obtener información sobre nuevos lanzamientos y sus canciones. A continuación, se describe el flujo de obtención de datos y los servicios involucrados.
 

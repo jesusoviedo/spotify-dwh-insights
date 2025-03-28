@@ -17,17 +17,17 @@ Si no está instalado, puedes seguir las instrucciones oficiales para instalar T
 Antes de ejecutar los comandos de Terraform, es necesario configurar las credenciales del proveedor de la nube que se va a utilizar. En este caso, se establece una variable de entorno para las credenciales de GCP:
 
 ```bash
-export GOOGLE_CREDENTIALS='./gcp_credentials'
+export GOOGLE_APPLICATION_CREDENTIALS='path/to/your/gcs-storage-key.json'
 ```
 
-Esto indica a Terraform dónde encontrar las credenciales de GCP. La ruta `./gcp_credentials` debe ser el archivo que contiene tus credenciales.
+Esto indica a Terraform dónde encontrar las credenciales de GCP. La ruta `path/to/your/gcs-storage-key.json` debe ser el archivo que contiene tus credenciales.
 
 ### Visualizar la variable de entorno
 
 Para verificar que la variable de entorno ha sido correctamente configurada, puedes ejecutar:
 
 ```bash
-echo $GOOGLE_CREDENTIALS
+echo $GOOGLE_APPLICATION_CREDENTIALS
 ```
 
 ## Comandos Comunes de Terraform
