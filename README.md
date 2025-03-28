@@ -108,8 +108,8 @@ Si necesitas una referencia rápida sobre cómo instalar y utilizar Terraform, c
 A continuación, se describe el contenido de cada carpeta principal dentro del proyecto para facilitar su comprensión y uso.
 
 
-### 📊 Datos de Ejemplo (`data/`)
-Esta carpeta contiene archivos de datos de ejemplo utilizados para pruebas y validaciones. Aquí se incluyen respuestas de la API de Spotify en formato JSON, que sirven como referencia para entender la estructura de los datos obtenidos.
+### 📊 Entendiendo los Datos (`data/`)
+Esta carpeta contiene archivos de datos de ejemplo utilizados para pruebas y informacion del servicio de Spotify. Aquí se incluyen respuestas de la API de Spotify en formato JSON, que sirven como referencia para entender la estructura de los datos obtenidos.
 
 ⚠️ Uso de los datos: este proyecto no almacena datos de manera permanente. Los archivos en esta carpeta son solo ejemplos de respuestas de la API de Spotify y no contienen datos en tiempo real. Para más información sobre las restricciones de uso de los datos y los servicios de Spotify, consulta el archivo `data/README.md`.
 

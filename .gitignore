@@ -173,5 +173,8 @@ cython_debug/
 # PyPI configuration file
 .pypirc
 
+# Proyect spotify-dwh-insights
 **/tmp/
 .gcp_credentials/
+.terraform/
+.terraform.lock.hcl
