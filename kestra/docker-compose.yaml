@@ -1,0 +1,86 @@
+services:
+  postgres-spotify-dwh:
+    image: postgres
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -d $${POSTGRES_DB} -U $${POSTGRES_USER}"]
+      interval: 30s
+      timeout: 10s
+      retries: 10
+
+  kestra-spotify-dwh:
+    image: kestra/kestra:latest
+    pull_policy: always
+    # Note that this setup with a root user is intended for development purpose.
+    # Our base image runs without root, but the Docker Compose implementation needs root to access the Docker socket
+    # To run Kestra in a rootless mode in production, see: https://kestra.io/docs/installation/podman-compose
+    user: "root"
+    command: server standalone
+    volumes:
+      - kestra-data:/app/storage
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /tmp/kestra-wd:/tmp/kestra-wd
+      - ${PWD}/flows:/local_flows
+      - ../.gcp_credentials/gcs-storage-key.json:/files/gcs-storage-key.json
+    environment:
+      KESTRA_CONFIGURATION: |
+        datasources:
+          postgres:
+            url: jdbc:postgresql://postgres-spotify-dwh:5432/${POSTGRES_DB}
+            driverClassName: org.postgresql.Driver
+            username: ${POSTGRES_USER}
+            password: ${POSTGRES_PASSWORD}
+        kestra:
+          server:
+            basicAuth:
+              enabled: false
+              username: "admin@kestra.io" # it must be a valid email address
+              password: kestra
+          repository:
+            type: postgres
+          storage:
+            type: local
+            local:
+              basePath: "/app/storage"
+          queue:
+            type: postgres
+          tasks:
+            tmpDir:
+              path: /tmp/kestra-wd/tmp
+            scripts:
+              docker:
+                volume-enabled: true
+          plugins:
+            configurations:
+              - type: io.kestra.plugin.scripts.runner.docker.Docker
+                values:
+                  volume-enabled: true
+          url: http://localhost:8080/
+        micronaut:
+          io:
+            watch:
+              enabled: true
+              paths:
+                - /local_flows
+      SECRET_CLIENTE_ID:  ${SECRET_CLIENTE_ID}
+      SECRET_CLIENTE_SECRET: ${SECRET_CLIENTE_SECRET}
+      #GOOGLE_APPLICATION_CREDENTIALS: /files/gcs-storage-key.json
+    ports:
+      - "8080:8080"
+      - "8081:8081"
+    depends_on:
+      postgres-spotify-dwh:
+        condition: service_started
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
+volumes:
+  postgres-data:
+    driver: local
+  kestra-data:
+    driver: local

@@ -14,7 +14,7 @@ URI_NEW_RELEASE = "https://api.spotify.com/v1/browse/new-releases"
 URI_ALBUM_TRACKS = f"https://api.spotify.com/v1/albums"
 CARPETA_TMP = "./tmp"
 
-def optener_token(client_id, client_secret):
+def obtener_token(client_id, client_secret):
     payload = {
         "grant_type": "client_credentials",
         "client_id": f"{client_id}",
@@ -32,7 +32,7 @@ def optener_token(client_id, client_secret):
         print(f"Error {response.status_code}: {response.json()}")
 
 
-def optener_nuevos_lanzamientos(token, url=URI_NEW_RELEASE):
+def obtener_nuevos_lanzamientos(token, url=URI_NEW_RELEASE):
 
     headers = {"Authorization": f"Bearer {token}"}
     params = {"limit": 20, "offset": 0}
@@ -54,12 +54,23 @@ def optener_nuevos_lanzamientos(token, url=URI_NEW_RELEASE):
         print(f"Error {response.status_code}: {response.json()}")
 
 
-def optener_datos_albumes(list_lanzamiento):
+def obtener_datos_albumes(list_lanzamiento):
+    return [
+        {
+            'id': album["id"],
+            'data_album': {
+                "album_type": album["album_type"],
+                "name": album["name"],
+                "release_date": album["release_date"],
+                "release_date_precision": album["release_date_precision"],
+                "total_tracks": album["total_tracks"]
+            }
+        }
+        for album in list_lanzamiento
+    ]
 
-    return [{"id" : lanzamiento.get("id"), "release_date" : lanzamiento.get("release_date")} for lanzamiento in list_lanzamiento]
 
-
-def optener_canciones_albumes(token, id_album, url=None):
+def obtener_canciones_albumes(token, id_album, data_album, url=None):
 
     url = url if url else f"{URI_ALBUM_TRACKS}/{id_album}/tracks"
     headers = {"Authorization": f"Bearer {token}"}
@@ -74,6 +85,7 @@ def optener_canciones_albumes(token, id_album, url=None):
     if response.status_code == 200:
         data = response.json()
         items = data.get("items")
+        [item.update({"data_album": data_album}) for item in items]
         next_url = data.get("next")
 
         print(f"Canciones obtenidos correctamente, en fecha/hora:{datetime.now(UTC).isoformat()} - cantidad: {len(items)}")
@@ -106,28 +118,29 @@ def eliminar_carpeta_tmp():
 def main():
     client_id = os.getenv('CLIENTE_ID', None)
     client_secret = os.getenv('CLIENTE_SECRET', None)
-    token = optener_token(client_id, client_secret)
+    token = obtener_token(client_id, client_secret)
 
 
     list_lanzamiento = []
-    items_0, next_url = optener_nuevos_lanzamientos(token)
+    items_0, next_url = obtener_nuevos_lanzamientos(token)
     list_lanzamiento.extend(items_0)  
     
     while next_url:
-        items_n, next_url = optener_nuevos_lanzamientos(token, next_url)
+        items_n, next_url = obtener_nuevos_lanzamientos(token, next_url)
         list_lanzamiento.extend(items_n)
 
 
-    list_id_albumnes = optener_datos_albumes(list_lanzamiento)
+    list_data_albumnes = obtener_datos_albumes(list_lanzamiento)
     parte = 1
     list_canciones = []
-    for dic_album in list_id_albumnes:
+    for dic_album in list_data_albumnes:
         id_album = dic_album.get("id")
-        items_0, next_url = optener_canciones_albumes(token, id_album)
+        data_album = dic_album.get("data_album")
+        items_0, next_url = obtener_canciones_albumes(token, id_album, data_album)
         list_canciones.extend(items_0)  
 
         while next_url:
-            items_n, next_url = optener_canciones_albumes(token, id_album, next_url)
+            items_n, next_url = obtener_canciones_albumes(token, id_album, data_album, next_url)
             list_canciones.extend(items_n)
 
         if len(list_canciones) >= 500:

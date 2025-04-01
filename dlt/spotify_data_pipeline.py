@@ -24,13 +24,13 @@ LIMIT_SONGS = 1000
 
 def params():
     parser = argparse.ArgumentParser(description='Carga de archivos usando DLT')
-    parser.add_argument('--bucket_name', type=str, help='Nombre del bucket')
-    parser.add_argument('--dataset_name', type=str, help='Nombre del Dataset')
+    parser.add_argument('--bucket_name', type=str, required=True, help='Nombre del bucket')
+    parser.add_argument('--dataset_name', type=str, required=True, help='Nombre del Dataset')
     
     return parser.parse_args()
 
 
-def optener_token(client_id, client_secret):
+def obtener_token(client_id, client_secret):
     payload = {
         "grant_type": "client_credentials",
         "client_id": f"{client_id}",
@@ -47,7 +47,7 @@ def optener_token(client_id, client_secret):
         print(f"Error {response.status_code}: {response.json()}")
 
 
-def optener_nuevos_lanzamientos(token, url=URI_NEW_RELEASE):
+def obtener_nuevos_lanzamientos(token, url=URI_NEW_RELEASE):
 
     headers = {"Authorization": f"Bearer {token}"}
     params = {"limit": 20, "offset": 0}
@@ -68,12 +68,23 @@ def optener_nuevos_lanzamientos(token, url=URI_NEW_RELEASE):
         print(f"Error {response.status_code}: {response.json()}")
 
 
-def optener_datos_albumes(list_lanzamiento):
+def obtener_datos_albumes(list_lanzamiento):
+    return [
+        {
+            'id': album["id"],
+            'data_album': {
+                "album_type": album["album_type"],
+                "name": album["name"],
+                "release_date": album["release_date"],
+                "release_date_precision": album["release_date_precision"],
+                "total_tracks": album["total_tracks"]
+            }
+        }
+        for album in list_lanzamiento
+    ]
 
-    return [{"id" : lanzamiento.get("id"), "release_date" : lanzamiento.get("release_date")} for lanzamiento in list_lanzamiento]
 
-
-def optener_canciones_albumes(token, id_album, url=None):
+def obtener_canciones_albumes(token, id_album, data_album, url=None):
 
     url = url if url else f"{URI_ALBUM_TRACKS}/{id_album}/tracks"
     headers = {"Authorization": f"Bearer {token}"}
@@ -88,6 +99,7 @@ def optener_canciones_albumes(token, id_album, url=None):
     if response.status_code == 200:
         data = response.json()
         items = data.get("items")
+        [item.update({"data_album": data_album}) for item in items]
         next_url = data.get("next")
 
         return items, next_url
@@ -121,36 +133,37 @@ def procesar_token():
     client_secret = os.getenv('CLIENTE_SECRET', None)
 
     print(f"Obteniendo token -- fecha/hora:{datetime.now(UTC).isoformat()}")
-    return optener_token(client_id, client_secret)
+    return obtener_token(client_id, client_secret)
 
 
 def procesar_nuevos_lanzamientos(token):
     list_lanzamiento = []
 
     print(f"Procesando nuevos lanzamientos -- fecha/hora:{datetime.now(UTC).isoformat()}")
-    items_0, next_url = optener_nuevos_lanzamientos(token)
+    items_0, next_url = obtener_nuevos_lanzamientos(token)
     list_lanzamiento.extend(items_0)  
     
     while next_url:
-        items_n, next_url = optener_nuevos_lanzamientos(token, next_url)
+        items_n, next_url = obtener_nuevos_lanzamientos(token, next_url)
         list_lanzamiento.extend(items_n)
 
-    return optener_datos_albumes(list_lanzamiento)
+    return obtener_datos_albumes(list_lanzamiento)
 
 
-def procesar_canciones_albumes(token, list_id_albumnes):
+def procesar_canciones_albumes(token, list_data_albumnes):
     parte = 1
     list_canciones = []
     list_filename = []
 
     print(f"Procesando canciones -- fecha/hora:{datetime.now(UTC).isoformat()}")
-    for dic_album in list_id_albumnes:
+    for dic_album in list_data_albumnes:
         id_album = dic_album.get("id")
-        items_0, next_url = optener_canciones_albumes(token, id_album)
+        data_album = dic_album.get("data_album")
+        items_0, next_url = obtener_canciones_albumes(token, id_album, data_album)
         list_canciones.extend(items_0)  
 
         while next_url:
-            items_n, next_url = optener_canciones_albumes(token, id_album, next_url)
+            items_n, next_url = obtener_canciones_albumes(token, id_album, data_album, next_url)
             list_canciones.extend(items_n)
 
         if len(list_canciones) >= LIMIT_SONGS:
@@ -190,9 +203,10 @@ def custom_serializer(record):
             record[key] = value.tolist()
     return record
 
+
 def dlt_load_data_bigquery(bucket_name, dataset_name_dest):
     
-    @dlt.resource(name="songs", write_disposition="replace")
+    @dlt.resource(name="songs", primary_key="id", write_disposition="merge")
     def read_parquet_from_gcs(bucket_name):
         
         now = datetime.now()
@@ -211,10 +225,6 @@ def dlt_load_data_bigquery(bucket_name, dataset_name_dest):
             if fnmatch.fnmatch(blob.name, patron):
                 file_path = os.path.join(CARPETA_TMP, os.path.basename(blob.name))
                 blob.download_to_filename(file_path)
-                
-                #df = pd.read_parquet(file_path)
-                #for record in df.to_dict(orient='records'):
-                #    yield custom_serializer(record)
 
                 parquet_file = pq.ParquetFile(file_path)
                 chunk_size = int(LIMIT_SONGS / 4)
@@ -245,14 +255,14 @@ def main():
     token = procesar_token()
 
     if token:
-        list_id_albumnes = procesar_nuevos_lanzamientos(token)
+        list_data_albumnes = procesar_nuevos_lanzamientos(token)
     
-    if token and list_id_albumnes:
-        list_file_path = procesar_canciones_albumes(token, list_id_albumnes)
-    
-    if bucket_name and list_file_path:
+    if list_data_albumnes:
+        list_file_path = procesar_canciones_albumes(token, list_data_albumnes)
+
         procesar_load_parquet_to_gcs(bucket_name, list_file_path)
         eliminar_carpeta_tmp()
+        
         dlt_load_data_bigquery(bucket_name, dataset_name)        
         eliminar_carpeta_tmp()
 
