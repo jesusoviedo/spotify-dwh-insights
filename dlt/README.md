@@ -30,6 +30,7 @@ Este script implementa un enfoque **ELT (Extract, Load, Transform)** para proces
 
 3. **Transform (Transformar):**
     - Una vez que los datos están en GCS, el script utiliza **DLT (Data Loading Tool)** para leer los archivos Parquet desde GCS, transformarlos y cargarlos en **BigQuery**. En este paso, se asegura que los datos estén listos para su análisis, aplicando transformaciones necesarias durante el proceso de carga.
+    - Durante este proceso, **DLT** emplea un mecanismo de merge para evitar la duplicación de canciones que ya existen en BigQuery, asegurando que solo se inserten nuevas canciones.
 
 Este enfoque ELT permite almacenar datos crudos en GCS, procesarlos y transformarlos de manera eficiente antes de cargarlos en BigQuery para su análisis y visualización.
 
@@ -80,3 +81,46 @@ python spotify_data_pipeline.py --bucket_name <nombre_del_bucket> --dataset_name
 ```
 
 Asegúrate de reemplazar `<nombre_del_bucket>` y `<nombre_del_dataset>` con el nombre del bucket donde se deben cargar los archivos y el nombre del dataset donde se almacenara la data raw en BigQuery.
+
+
+
+## Creación y Despliegue de la Imagen Docker
+Ejecutar el script dentro de un contenedor Docker proporciona varias ventajas, como la portabilidad y la consistencia en cualquier entorno. Al crear y usar una imagen Docker, te aseguras de que el entorno y las dependencias estén configurados de manera idéntica, lo que elimina posibles discrepancias entre diferentes máquinas o sistemas operativos. Esto facilita la ejecución del script en entornos de desarrollo, producción o en plataformas de orquestación como **Kestra**.
+
+Para crear una imagen Docker y subirla a Docker Hub, sigue estos pasos:
+
+### Construir la imagen Docker:
+```bash
+docker build -t spotify-pipeline:v1.0 .
+```
+
+
+### Iniciar sesión en Docker Hub:
+```bash
+docker login
+```
+
+
+### Etiquetar la imagen para Docker Hub:
+```bash
+docker tag spotify-pipeline:v1.0 rj24/spotify-pipeline:v1.0
+```
+
+
+### Subir la imagen a Docker Hub:
+```bash
+docker push rj24/spotify-pipeline:v1.0
+```
+
+
+### Ejecutar la imagen Docker:
+```bash
+docker run \
+-v /home/joviedo/spotify-dwh-insights/.gcp_credentials:/gcp_credentials \
+-e GOOGLE_APPLICATION_CREDENTIALS="/gcp_credentials/gcs-storage-key.json" \
+-e CLIENTE_ID=$CLIENTE_ID \
+-e CLIENTE_SECRET=$CLIENTE_SECRET \
+rj24/spotify-pipeline:v1.0 \
+--bucket_name spotify-dwh-insights-music-info \
+--dataset_name spotify_raw_data
+```

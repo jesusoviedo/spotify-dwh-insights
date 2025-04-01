@@ -111,6 +111,43 @@ docker exec -it <container_id> <command>
 docker system prune
 ```
 
+### Gestionar imágenes de Docker en Docker Hub
+
+#### **Crear una cuenta en Docker Hub (si no la tienes)**
+Si aún no tienes una cuenta en Docker Hub, crea una [aquí](https://hub.docker.com/).
+
+
+#### **Iniciar sesión en Docker Hub desde la terminal**
+Usa el siguiente comando para iniciar sesión en tu cuenta de Docker Hub:
+```bash
+docker login
+```
+Te pedirá tu nombre de usuario y contraseña. Si todo es correcto, verás un mensaje de éxito.
+
+
+#### **Etiqueta la imagen**
+Antes de subirla, necesitas etiquetar tu imagen para asociarla con tu repositorio de Docker Hub. La etiqueta debe seguir el formato:
+`<username>/<repository>:<tag>`
+
+Por ejemplo, si tu nombre de usuario en Docker Hub es `usuarioxyz` y el nombre del repositorio es `repositorio-123`:
+```bash
+docker tag <image_name>:<tag> usuarioxyz/repositorio-123:<tag>
+```
+
+
+#### **Subir la imagen a Docker Hub**
+Ahora, sube la imagen etiquetada a Docker Hub con el siguiente comando:
+```bash
+docker push usuarioxyz/repositorio-123:<tag>
+```
+
+
+#### Descargar (pull) la imagen en otra máquina
+Para verificar que la imagen se subió correctamente o usarla en otro lugar, puedes descargarla con el siguiente comando:
+```bash
+docker pull usuarioxyz/repositorio-123:<tag>
+```
+
 
 ## Docker Compose
 
@@ -119,7 +156,7 @@ A continuación, se presentan algunos de los comandos más utilizados en Docker 
 ### Construir contenedores
 El siguiente comando construye los contenedores definidos en el archivo docker-compose.yml, descargando las imágenes necesarias y configurando los servicios:
 ```bash
-docker-compose build
+docker compose build
 ```
 
 
@@ -127,7 +164,7 @@ docker-compose build
 ### Iniciar los servicios
 Este comando inicia los contenedores y los servicios definidos en el archivo docker-compose.yml. Si los contenedores aún no están construidos, el comando los construirá antes de iniciarlos:
 ```bash
-docker-compose up
+docker compose up
 ```
 
 
@@ -135,7 +172,7 @@ docker-compose up
 ### Iniciar en segundo plano
 Al agregar la opción -d (detached), el comando inicia los servicios en segundo plano, permitiendo que puedas seguir utilizando la terminal para otras tareas:
 ```bash
-docker-compose up -d
+docker compose up -d
 ```
 
 
@@ -143,7 +180,7 @@ docker-compose up -d
 ### Detener los servicios
 Este comando detiene y elimina los contenedores, redes y volúmenes creados por Docker Compose, devolviendo el entorno a su estado anterior:
 ```bash
-docker-compose down
+docker compose down
 ```
 
 ## Documentación

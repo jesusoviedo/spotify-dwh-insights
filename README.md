@@ -108,37 +108,41 @@ Si necesitas una referencia rápida sobre cómo instalar y utilizar Terraform, c
 A continuación, se describe el contenido de cada carpeta principal dentro del proyecto para facilitar su comprensión y uso.
 
 
-### 📊 Entendiendo los Datos (`data/`)
+### 📊 Entendiendo los Datos ([`data/`](./data))
 Esta carpeta contiene archivos de datos de ejemplo utilizados para pruebas y informacion del servicio de Spotify. Aquí se incluyen respuestas de la API de Spotify en formato JSON, que sirven como referencia para entender la estructura de los datos obtenidos.
 
 ⚠️ Uso de los datos: este proyecto no almacena datos de manera permanente. Los archivos en esta carpeta son solo ejemplos de respuestas de la API de Spotify y no contienen datos en tiempo real. Para más información sobre las restricciones de uso de los datos y los servicios de Spotify, consulta el archivo `data/README.md`.
 
 
-### 🏗 Modelado de Datos con DBT (`dbt/`)
-Aquí se encuentran los modelos de transformación creados con dbt para estructurar los datos almacenados en BigQuery. Contiene definiciones de modelos, fuentes de datos, pruebas y documentación generada automáticamente.
+### 📚 Documentación Auxiliar ([`docs/`](./docs))
+Esta carpeta contiene guías rápidas y documentación de referencia para configurar y entender herramientas clave utilizadas en el proyecto.
 
 
-### 🚀 Extracción e Ingesta con DLT (`dlt/`)
-Esta carpeta contiene la configuración y los scripts necesarios para extraer datos desde la API de Spotify y cargarlos en el Data Lake de GCS.
-
-
-### 🔄 Orquestación con Kestra (`kestra/`)
-En esta carpeta se encuentran los flujos de trabajo definidos en Kestra. Aquí se configura la ejecución automatizada del pipeline, incluyendo la extracción, transformación y carga de datos.
-
-
-### 📈 Visualización de Datos (`visualizations/`)
-Esta carpeta contiene los archivos relacionados con la generación de dashboards y reportes. Aquí se almacenan las configuraciones y posibles scripts necesarios para conectar con herramientas de visualización.
-
-
-### ☁️ Infraestructura como Código (`terraform/`)
-Esta carpeta contiene las configuraciones de Terraform necesarias para desplegar y gestionar los recursos en Google Cloud Platform (GCP). Aquí se definen los servicios en la nube de forma eficiente, reproducible y automatizada.
-
-
-### 🛠 Scripts Auxiliares (`scripts/`)
+### 🛠 Scripts Auxiliares ([`scripts/`](./scripts))
 Aquí se encuentran scripts en Python diseñados para facilitar la automatización de diversas tareas dentro del proyecto. Estos pueden incluir herramientas de soporte, pruebas y procesos adicionales relacionados con la gestión de datos.
 
 
-### 🔄 Integración y Despliegue Automático (`.github/workflows/`)
+### ☁️ Infraestructura como Código ([`terraform/`](./terraform))
+Esta carpeta contiene las configuraciones de Terraform necesarias para desplegar y gestionar los recursos en Google Cloud Platform (GCP). Aquí se definen los servicios en la nube de forma eficiente, reproducible y automatizada.
+
+
+### 🚀 Extracción e Ingesta con DLT ([`dlt/`](./dlt))
+Esta carpeta contiene la configuración y los scripts necesarios para extraer datos desde la API de Spotify y cargarlos en el Data Lake de GCS.
+
+
+### 🔄 Orquestación con Kestra ([`kestra/`](./kestra))
+En esta carpeta se encuentran los flujos de trabajo definidos en Kestra. Aquí se configura la ejecución automatizada del pipeline, incluyendo la extracción, transformación y carga de datos.
+
+
+### 🏗 Modelado de Datos con DBT ([`dbt/`](./dbt))
+Aquí se encuentran los modelos de transformación creados con dbt para estructurar los datos almacenados en BigQuery. Contiene definiciones de modelos, fuentes de datos, pruebas y documentación generada automáticamente.
+
+
+### 📈 Visualización de Datos ([`visualizations/`](./visualizations))
+Esta carpeta contiene los archivos relacionados con la generación de dashboards y reportes. Aquí se almacenan las configuraciones y posibles scripts necesarios para conectar con herramientas de visualización.
+
+
+### 🔄 Integración y Despliegue Automático ([`.github/workflows/`](./.github/workflows)`)
 En esta carpeta se almacena la configuración de GitHub Actions para implementar un flujo de CI/CD robusto. Asegura que cada cambio en el código pase por validaciones antes de ser desplegado, permitiendo una entrega continua y segura.
 
 

@@ -38,6 +38,11 @@ variable "bq_dataset_name" {
   default     = "spotify_raw_data"
 }
 
+variable "bq_dataset_name" {
+  description = "My BigQuery Dataset Name"
+  default     = "spotify_raw_data_staging"
+}
+
 variable "bq_table_expiration_ms" {
   description = "Default table expiration"
   default     = 2592000000

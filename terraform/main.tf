@@ -49,3 +49,10 @@ resource "google_bigquery_dataset" "spotify-dataset-raw" {
   location                    = var.location
   default_table_expiration_ms = var.bq_table_expiration_ms
 }
+
+resource "google_bigquery_dataset" "spotify-dataset-raw-staging" {
+  dataset_id                  = var.bq_dataset_name
+  project                     = var.project
+  location                    = var.location
+  default_table_expiration_ms = var.bq_table_expiration_ms
+}
