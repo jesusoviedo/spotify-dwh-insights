@@ -10,6 +10,7 @@ pyarrow = "*"
 google-cloud-storage = "*"
 dlt = {extras = ["bigquery"], version = "*"}
 google-cloud-bigquery-storage = "*"
+requests-cache = "*"
 
 [dev-packages]
 

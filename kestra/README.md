@@ -1,4 +1,4 @@
-# 🔄 Orquestación con Kestra (`kestra/`)
+# 🔄 Orquestación con Kestra
 
 Este proyecto utiliza **Kestra** para la orquestación de tareas y flujos. A continuación, se describe cómo configurar y ejecutar el entorno localmente utilizando **Docker Compose** junto con **Docker** para levantar Kestra.
 
@@ -129,6 +129,6 @@ Este flujo en Kestra se encarga de extraer datos desde la API de Spotify y almac
 - Se utilizan variables de entorno (`CLIENTE_ID`, `CLIENTE_SECRET`, `GOOGLE_APPLICATION_CREDENTIALS`) para autenticarse en la API de Spotify y en GCP.
 - El script `spotify_data_pipeline.py` es el encargado del procesamiento de datos y está dentro de la imagen de Docker.
 
- Para conocer más sobre cómo se extraen y procesan los datos dentro del contenedor, se debe revisar la carpeta  [`dlt`](../dlt/), ya que allí se encuentra la lógica del script `spotify_data_pipeline.py`.
+ Para conocer más sobre cómo se extraen y procesan los datos dentro del contenedor, se debe revisar la carpeta [`dlt`](../dlt/), ya que allí se encuentra la lógica del script `spotify_data_pipeline.py`.
 
 

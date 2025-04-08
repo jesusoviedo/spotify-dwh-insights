@@ -4,22 +4,40 @@ import time
 import argparse
 import dlt
 import requests
+import requests_cache
 import fnmatch
 import pandas as pd
 import pyarrow.parquet as pq
 import pyarrow as pa
-import numpy as np
-from datetime import datetime, UTC
+import numpy
+import pytz
+from datetime import datetime
 from google.cloud import storage
-from dlt.sources.filesystem import filesystem
 
 
 URI_TOKEN = "https://accounts.spotify.com/api/token"
 URI_NEW_RELEASE = "https://api.spotify.com/v1/browse/new-releases"
-URI_ALBUM_TRACKS = f"https://api.spotify.com/v1/albums"
+URI_ALBUM_TRACKS = "https://api.spotify.com/v1/albums"
+URI_TRACKS = "https://api.spotify.com/v1/tracks"
+URI_ARTISTS = "https://api.spotify.com/v1/artists"
 CARPETA_TMP = "./tmp"
 GCS_SUBFOLDER = "parquet"
 LIMIT_SONGS = 1000
+CACHE_PATH = "../spotify_cache.sqlite"
+UTC_MINUS_3 = pytz.timezone("America/Asuncion") 
+DATE_NOW = datetime.now(UTC_MINUS_3).strftime('%d/%m/%Y %H:%M:%S')
+
+
+def only_cache_success(response):
+    return response.status_code == 200
+
+
+requests_cache.install_cache(
+    CACHE_PATH,
+    backend='sqlite',
+    expire_after=12 * 60 * 60,
+    filter_fn=only_cache_success
+)
 
 
 def params():
@@ -31,20 +49,22 @@ def params():
 
 
 def obtener_token(client_id, client_secret):
-    payload = {
-        "grant_type": "client_credentials",
-        "client_id": f"{client_id}",
-        "client_secret": f"{client_secret}"
-    }
-    headers = {"Content-Type": "application/x-www-form-urlencoded"}
 
-    response = requests.post(URI_TOKEN, data=payload, headers=headers)
+    with requests_cache.disabled():
+        payload = {
+            "grant_type": "client_credentials",
+            "client_id": f"{client_id}",
+            "client_secret": f"{client_secret}"
+        }
+        headers = {"Content-Type": "application/x-www-form-urlencoded"}
 
-    if response.status_code == 200:
-        data = response.json()
-        return data.get("access_token")
-    else:
-        print(f"Error {response.status_code}: {response.json()}")
+        response = requests.post(URI_TOKEN, data=payload, headers=headers)
+
+        if response.status_code == 200:
+            data = response.json()
+            return data.get("access_token")
+        else:
+            print(f"Error {response.status_code}: {response.text}")
 
 
 def obtener_nuevos_lanzamientos(token, url=URI_NEW_RELEASE):
@@ -65,23 +85,101 @@ def obtener_nuevos_lanzamientos(token, url=URI_NEW_RELEASE):
 
         return items, next_url
     else:
-        print(f"Error {response.status_code}: {response.json()}")
+        print(f"Error {response.status_code}: {response.text}")
 
 
-def obtener_datos_albumes(list_lanzamiento):
-    return [
+def obtener_album(token, id_album):
+
+    url = f"{URI_ALBUM_TRACKS}/{id_album}"
+    headers = {"Authorization": f"Bearer {token}"}
+        
+    response = requests.get(url, headers=headers)
+
+    if response.status_code == 200:
+        data = response.json()
+        
+        return data
+    else:
+        print(f"Error {response.status_code}: {response.text}")
+
+
+def transformar_datos_albumes(list_lanzamiento, token):
+
+    albums  = [obtener_album(token, lanzamiento["id"]) for lanzamiento in list_lanzamiento]
+    transformed_albums = [
         {
-            'id': album["id"],
-            'data_album': {
+            "id": album["id"],
+            "data_album": {
+                "id": album["id"],
                 "album_type": album["album_type"],
                 "name": album["name"],
                 "release_date": album["release_date"],
                 "release_date_precision": album["release_date_precision"],
-                "total_tracks": album["total_tracks"]
+                "total_tracks": album["total_tracks"],
+                "popularity": album["popularity"],
+                "label": album["label"],
+                "insert_date": DATE_NOW
             }
         }
-        for album in list_lanzamiento
+        for album in albums 
     ]
+    return transformed_albums
+
+
+def transformar_datos_artistas(list_artists, id_song):
+
+    transformed_artists = [
+        {
+            "external_urls": artists["external_urls"],
+            "followers": artists["followers"],
+            "genres": [{"id": artists["id"], "genres": artists["genres"]}],
+            "href": artists["href"],
+            "id": artists["id"],
+            "images": [{"id": artists["id"], "images": artists["images"]}],
+            "name": artists["name"],
+            "popularity": artists["popularity"],
+            "type": artists["type"], 
+            "uri": artists["uri"],
+            "id_song": id_song,
+            "insert_date": DATE_NOW
+        }
+        for artists in list_artists 
+    ]
+    return transformed_artists
+
+
+def obtener_artistas(token, dic_list_artista):
+
+    url = URI_ARTISTS
+    list_id_artists = dic_list_artista.get("list_id_artist")
+    id_song = dic_list_artista.get("id_song")
+
+    headers = {"Authorization": f"Bearer {token}"}
+    params = {"ids": ",".join(list_id_artists)}
+        
+    response = requests.get(url, headers=headers, params=params)
+
+    if response.status_code == 200:
+        data = response.json()
+        items = data.get("artists")
+
+        return transformar_datos_artistas(items, id_song)
+    else:
+        print(f"Error {response.status_code}: {response.text}")
+
+
+def obtener_popularidad_cancion(token, id_cancion):
+
+    url = f"{URI_TRACKS}/{id_cancion}"
+    headers = {"Authorization": f"Bearer {token}"}
+    response = requests.get(url, headers=headers)
+
+    if response.status_code == 200:
+        data = response.json()
+
+        return data.get("popularity")
+    else:
+        print(f"Error {response.status_code}: {response.text}")
 
 
 def obtener_canciones_albumes(token, id_album, data_album, url=None):
@@ -98,13 +196,31 @@ def obtener_canciones_albumes(token, id_album, data_album, url=None):
 
     if response.status_code == 200:
         data = response.json()
-        items = data.get("items")
-        [item.update({"data_album": data_album}) for item in items]
+        items = data.get("items", [])
+        
+        for item in items:
+            
+            id_cancion =item.get("id")
+            popularidad_cancion = obtener_popularidad_cancion(token, id_cancion)
+            
+            artists_list = item.get("artists", [])
+            list_id_artist = [artist.get("id") for artist in artists_list]
+            dic_list_artista = {"id_song": id_cancion, "list_id_artist": list_id_artist}           
+            artistas = obtener_artistas(token, dic_list_artista)
+            
+            item.update({
+                "popularity": popularidad_cancion,
+                "id_album": id_album,
+                "album": data_album, 
+                "artists": artistas,
+                "insert_date": DATE_NOW
+            })
+            
         next_url = data.get("next")
 
         return items, next_url
     else:
-        print(f"Error {response.status_code}: {response.json()}")
+        print(f"Error {response.status_code}: {response.text}")
 
 
 def guardar_parquet(canciones, parte):
@@ -132,14 +248,14 @@ def procesar_token():
     client_id = os.getenv('CLIENTE_ID', None)
     client_secret = os.getenv('CLIENTE_SECRET', None)
 
-    print(f"Obteniendo token -- fecha/hora:{datetime.now(UTC).isoformat()}")
+    print(f"Obteniendo token -- fecha/hora:{datetime.now(UTC_MINUS_3).isoformat()}")
     return obtener_token(client_id, client_secret)
 
 
 def procesar_nuevos_lanzamientos(token):
     list_lanzamiento = []
 
-    print(f"Procesando nuevos lanzamientos -- fecha/hora:{datetime.now(UTC).isoformat()}")
+    print(f"Procesando nuevos lanzamientos -- fecha/hora:{datetime.now(UTC_MINUS_3).isoformat()}")
     items_0, next_url = obtener_nuevos_lanzamientos(token)
     list_lanzamiento.extend(items_0)  
     
@@ -147,7 +263,7 @@ def procesar_nuevos_lanzamientos(token):
         items_n, next_url = obtener_nuevos_lanzamientos(token, next_url)
         list_lanzamiento.extend(items_n)
 
-    return obtener_datos_albumes(list_lanzamiento)
+    return transformar_datos_albumes(list_lanzamiento, token)
 
 
 def procesar_canciones_albumes(token, list_data_albumnes):
@@ -155,7 +271,7 @@ def procesar_canciones_albumes(token, list_data_albumnes):
     list_canciones = []
     list_filename = []
 
-    print(f"Procesando canciones -- fecha/hora:{datetime.now(UTC).isoformat()}")
+    print(f"Procesando canciones -- fecha/hora:{datetime.now(UTC_MINUS_3).isoformat()}")
     for dic_album in list_data_albumnes:
         id_album = dic_album.get("id")
         data_album = dic_album.get("data_album")
@@ -192,21 +308,31 @@ def load_parquet_to_gcs(bucket_name, file_path):
 
 def procesar_load_parquet_to_gcs(bucket_name, list_file_path):
 
-    print(f"Subiendo archivos a GCS -- fecha/hora:{datetime.now(UTC).isoformat()}")
+    print(f"Subiendo archivos a GCS -- fecha/hora:{datetime.now(UTC_MINUS_3).isoformat()}")
     for file_path in list_file_path:
         load_parquet_to_gcs(bucket_name, file_path)
 
 
-def custom_serializer(record):
-    for key, value in record.items():
-        if isinstance(value, np.ndarray):
-            record[key] = value.tolist()
-    return record
+def custom_serializer(value):
+    if isinstance(value, numpy.ndarray):
+        if value.size == 0:
+            return []
+        lista_value = value.tolist()
+        return [custom_serializer(v) for v in lista_value]
+    elif isinstance(value, dict):
+        return {k: custom_serializer(v) for k, v in value.items()}
+    elif isinstance(value, list):
+        return [custom_serializer(v) for v in value]
+    elif isinstance(value, (str, int, bool, float)) or value is None:
+        return value
+    else:
+        print(f"Tipo no compatible encontrado: {type(value)} - {value}")
+        return str(value)
 
 
 def dlt_load_data_bigquery(bucket_name, dataset_name_dest):
     
-    @dlt.resource(name="songs", primary_key="id", write_disposition="merge")
+    @dlt.resource(name="songs", primary_key=("id", "id_album"), write_disposition="merge")
     def read_parquet_from_gcs(bucket_name):
         
         now = datetime.now()
@@ -216,7 +342,6 @@ def dlt_load_data_bigquery(bucket_name, dataset_name_dest):
         patron = f"{prefix}songs_??{current_month}{current_year}_part*.parquet"
 
         client = storage.Client()
-        bucket = client.bucket(bucket_name)
 
         os.makedirs(CARPETA_TMP, exist_ok=True)
         blobs = client.list_blobs(bucket_name, prefix=prefix)
@@ -242,7 +367,7 @@ def dlt_load_data_bigquery(bucket_name, dataset_name_dest):
         dev_mode = False
     )
 
-    print(f"Cargando data raw en BigQuery -- fecha/hora:{datetime.now(UTC).isoformat()}")
+    print(f"Cargando data raw en BigQuery -- fecha/hora:{datetime.now(UTC_MINUS_3).isoformat()}")
     load_info = pipeline.run(read_parquet_from_gcs(bucket_name))
     print(load_info)
         

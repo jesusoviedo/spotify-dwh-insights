@@ -1,0 +1,41 @@
+{
+    "artists": [
+      {
+        "external_urls": {
+          "spotify": "https://open.spotify.com/artist/2CIMQHirSU0MQqyYHq0eOx"
+        },
+        "followers": {
+          "href": null,
+          "total": 2853375
+        },
+        "genres": [
+          "edm",
+          "progressive house",
+          "dubstep"
+        ],
+        "href": "https://api.spotify.com/v1/artists/2CIMQHirSU0MQqyYHq0eOx",
+        "id": "2CIMQHirSU0MQqyYHq0eOx",
+        "images": [
+          {
+            "url": "https://i.scdn.co/image/ab6761610000e5eb89ffabe57a25cedeca3309e7",
+            "height": 640,
+            "width": 640
+          },
+          {
+            "url": "https://i.scdn.co/image/ab6761610000517489ffabe57a25cedeca3309e7",
+            "height": 320,
+            "width": 320
+          },
+          {
+            "url": "https://i.scdn.co/image/ab6761610000f17889ffabe57a25cedeca3309e7",
+            "height": 160,
+            "width": 160
+          }
+        ],
+        "name": "deadmau5",
+        "popularity": 68,
+        "type": "artist",
+        "uri": "spotify:artist:2CIMQHirSU0MQqyYHq0eOx"
+      }
+    ]
+  }

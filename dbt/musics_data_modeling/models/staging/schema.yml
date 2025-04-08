@@ -1,0 +1,193 @@
+version: 2
+
+sources:
+  - name: staging
+    database: "{{ env_var('DBT_DATABASE', 'spotify-dwh-insights') }}"
+    schema: "{{ env_var('DBT_SCHEMA', 'spotify_raw_data') }}"
+    tables:
+    - name: songs__available_markets
+    - name: songs__artists__genres
+    - name: songs__artists__genres__genres
+    - name: songs__artists__images
+    - name: songs__artists__images__images
+    - name: songs__artists
+    - name: songs
+
+models:
+  - name: stg_songs
+    description: "Este modelo contiene la información detallada de las canciones obtenidas desde la API de Spotify. Incluye información como duración, tipo de canción, si es explícita o local, su posición dentro del álbum, y la relación con el álbum correspondiente."
+    columns:
+      - name: song_id
+        data_type: string
+        description: "Identificador único de la canción"
+
+      - name: song_name
+        data_type: string
+        description: "Nombre de la canción."
+
+      - name: song_duration_ms
+        data_type: int64
+        description: "Duración de la canción en milisegundos, tal como lo entrega la API de Spotify."
+
+      - name: song_duration_seconds
+        data_type: float64
+        description: "Duración de la canción convertida a segundos para facilitar el análisis."
+
+      - name: song_duration_minutes
+        data_type: float64
+        description: "Duración de la canción convertida a minutos para facilitar la visualización."
+
+      - name: song_type
+        data_type: string
+        description: "Tipo de pista (por ejemplo, 'track')."
+
+      - name: song_popularity
+        data_type: int64
+        description: "Nivel de popularidad de la canción, en una escala de 0 a 100."
+
+      - name: song_is_explicit
+        data_type: boolean
+        description: "Indica si la canción contiene contenido explícito."
+
+      - name: song_is_local
+        data_type: boolean
+        description: "Indica si la canción es un archivo local o proviene del catálogo de Spotify."
+
+      - name: song_track_number_album
+        data_type: int64
+        description: "Número de pista dentro del álbum."
+
+      - name: song_disc_number_album
+        data_type: int64
+        description: "Número del disco dentro del álbum (útil para álbumes con múltiples discos)."
+      
+      - name: song_insert_date
+        data_type: timestamp
+        description: "Fecha y hora en que el registro de la canción fue insertado en la base de datos."
+
+      - name: album_id
+        data_type: string
+        description: "Identificador del álbum al que pertenece la canción."
+
+      - name: available_markets_id
+        data_type: string
+        description: "Identificador del conjunto de mercados donde la canción está disponible."
+
+  - name: stg_albums
+    description: "Este modelo representa la información de los álbumes, incluyendo metadatos como nombre, tipo, popularidad, fecha de lanzamiento y sello discográfico."
+    columns:
+      - name: album_id
+        data_type: string
+        description: "Identificador único del álbum."
+
+      - name: album_name
+        data_type: string
+        description: "Nombre del álbum."
+
+      - name: album_type
+        data_type: string
+        description: "Tipo de álbum (por ejemplo, 'album', 'single', 'compilation')."
+
+      - name: album_popularity
+        data_type: int64
+        description: "Nivel de popularidad del álbum, en una escala de 0 a 100."
+
+      - name: album_release_date
+        data_type: string
+        description: "Fecha de lanzamiento del álbum según la precisión especificada."
+
+      - name: album_release_date_precision
+        data_type: string
+        description: "Precisión de la fecha de lanzamiento ('year', 'month' o 'day')."
+
+      - name: album_release_date_formatted
+        data_type: date
+        description: "Fecha de lanzamiento formateada como tipo date, con valores ajustados para completar día o mes si es necesario."
+
+      - name: album_total_tracks
+        data_type: int64
+        description: "Número total de pistas incluidas en el álbum."
+
+      - name: album_label
+        data_type: string
+        description: "Sello discográfico que publicó el álbum."
+
+      - name: album_insert_date
+        data_type: timestamp
+        description: "Fecha y hora en que el registro del álbum fue insertado en la base de datos."
+
+  - name: stg_available_markets
+    description: "Este modelo contiene la información de los mercados donde una canción está disponible. Cada registro asocia una canción con el código ISO del país donde puede reproducirse."
+    columns:
+      - name: available_markets_id
+        data_type: string
+        description: "Identificador del conjunto de mercados disponibles para una canción."
+
+      - name: country_iso
+        data_type: string
+        description: "Código ISO del país donde la canción está disponible."
+
+  - name: stg_artists
+    description: "Este modelo contiene la información principal de los artistas que participan en las canciones, incluyendo nombre, popularidad y seguidores."
+    columns:
+      - name: artist_id
+        data_type: string
+        description: "Identificador único del artista."
+
+      - name: artist_name
+        data_type: string
+        description: "Nombre del artista."
+
+      - name: artist_popularity
+        data_type: int64
+        description: "Nivel de popularidad del artista, en una escala de 0 a 100."
+
+      - name: artist_followers_total
+        data_type: int64
+        description: "Número total de seguidores del artista en Spotify."
+
+      - name: artist_insert_date
+        data_type: timestamp
+        description: "Fecha y hora en que el registro del artista fue insertado en la base de datos."
+
+      - name: song_id
+        data_type: string
+        description: "Identificador de la canción con la que está relacionado el artista."
+
+  - name: stg_artists_genres
+    description: "Este modelo representa los géneros musicales asociados a cada artista."
+    columns:
+      - name: gender_id
+        data_type: string
+        description: "Identificador del registro de género asociado a un artista."
+
+      - name: gender_name
+        data_type: string
+        description: "Nombre del género musical."
+
+      - name: artist_id
+        data_type: string
+        description: "Identificador del artista relacionado con el género."
+
+  - name: stg_artists_images
+    description: "Este modelo contiene las imágenes públicas de los artistas, incluyendo las dimensiones de cada imagen."
+    columns:
+      - name: image_id
+        data_type: string
+        description: "Identificador del registro de imagen."
+
+      - name: image_url
+        data_type: string
+        description: "URL de la imagen del artista."
+
+      - name: image_height
+        data_type: int64
+        description: "Altura de la imagen en píxeles."
+
+      - name: image_width
+        data_type: int64
+        description: "Ancho de la imagen en píxeles."
+
+      - name: artist_id
+        data_type: string
+        description: "Identificador del artista al que pertenece la imagen."

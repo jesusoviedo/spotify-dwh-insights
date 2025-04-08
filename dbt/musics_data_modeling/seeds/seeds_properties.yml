@@ -1,0 +1,16 @@
+version: 2
+
+seeds:
+  - name: countries_iso
+    description: >
+      Este archivo contiene la lista de países junto con sus códigos ISO.  
+      Se puede utilizar para enriquecer los datos relacionados con mercados,  
+      ubicaciones geográficas y segmentación de usuarios basada en países.  
+      El dataset incluye los siguientes campos:
+        - country_name: Nombre del país
+        - iso_alpha_2: Código ISO de 2 letras (ej. US, ES, AR)
+    columns:
+      - name: country_name
+        description: "Nombre oficial del país"
+      - name: iso_alpha_2
+        description: "Código ISO de 2 letras del país"

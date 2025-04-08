@@ -4,12 +4,8 @@ verify_ssl = true
 name = "pypi"
 
 [packages]
-redis = "*"
-requests = "*"
-pandas = "*"
-pyarrow = "*"
-google-cloud-storage = "*"
-requests-cache = "*"
+dbt-core = "*"
+dbt-bigquery = "*"
 
 [dev-packages]
 
