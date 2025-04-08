@@ -45,6 +45,18 @@ Luego, estos datos serán almacenados en un Data Lake, procesados para un Data W
 - **GitHub Actions:** CI/CD para despliegue en producción.
 
 
+- **Python:** Lenguaje principal para construir el pipeline.
+- **Docker:** Contenerización del pipeline para facilitar la portabilidad y consistencia.
+- **Docker Hub:** Almacenamiento y distribución de las imágenes del pipeline.
+- **Kestra:** Orquestación del pipeline de datos.
+- **DLT:** Extracción e ingestión de datos.
+- **Google Cloud Storage (GCS):** Almacenamiento del Data Lake.
+- **BigQuery:** Data Warehouse.
+- **DBT:** Modelado de datos.
+- **Looker Studio:** Visualización de datos.
+- **Terraform:** Infraestructura como código en GCP.
+- **GitHub Actions:** CI/CD para despliegue en producción.
+
 ## 📂 Estructura de carpetas
 ```bash
 📂 spotify-data-engineering  

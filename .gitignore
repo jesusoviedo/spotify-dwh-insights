@@ -178,3 +178,6 @@ cython_debug/
 .gcp_credentials/
 .terraform/
 .terraform.lock.hcl
+**/spotify_cache.sqlite
+kestra/flows/tutorial_*
+.vscode/

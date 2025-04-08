@@ -1,4 +1,4 @@
-# 📚 Documentación Auxiliar (`docs/`)
+# 📚 Documentación Auxiliar
 Esta carpeta contiene documentos auxiliares con guías rápidas para comprender y configurar aspectos clave del proyecto.
 
 ## Archivos disponibles:

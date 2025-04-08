@@ -1,1 +1,1 @@
-# 📈 Visualización de Datos (`visualizations/`)
+# 📈 Visualización de Datos

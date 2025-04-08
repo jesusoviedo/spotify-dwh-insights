@@ -1,0 +1,18 @@
+version: 2
+
+tests:
+  - name: check_negative_values
+    description: >
+      Verifica que una columna no contenga valores numéricos negativos.
+      Este test es útil cuando una métrica debe ser siempre cero o positiva,
+      como la duración, conteos, popularidad o seguidores.
+      La columna será convertida a tipo FLOAT64 antes de realizar la comparación,
+      por lo tanto, se espera que sea una columna numérica o una cadena que represente un número.
+    arguments:
+      - name: model
+        type: string
+        description: Nombre del modelo a testear.
+
+      - name: column_name
+        type: string
+        description: Nombre de la columna que no debe contener valores negativos.

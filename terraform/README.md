@@ -1,4 +1,4 @@
-# ☁️ Infraestructura como Código (`terraform/`)
+# ☁️ Infraestructura como Código
 
 Esta carpeta contiene los archivos de configuración de Terraform utilizados para definir y gestionar la infraestructura de nuestro proyecto. Cada archivo está organizado para mejorar la legibilidad y el mantenimiento, agrupando recursos y configuraciones específicas. 
 

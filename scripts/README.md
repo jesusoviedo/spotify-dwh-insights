@@ -1,4 +1,4 @@
-# 🛠 Scripts Auxiliares (`scripts/`)
+# 🛠 Scripts Auxiliares
 
 Esta carpeta contiene scripts en Python para interactuar con la API de Spotify, así como para crear recursos en Google Cloud Platform (GCP).
 
@@ -13,7 +13,7 @@ pipenv --python 3.12
 ```
 
 ```bash
-pipenv install requests pandas pyarrow google-cloud-storage
+pipenv install requests requests-cache pandas pyarrow google-cloud-storage
 ```
 
 ## Script `api_spotify.py`

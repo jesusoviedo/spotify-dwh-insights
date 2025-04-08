@@ -79,6 +79,8 @@ gcloud iam service-accounts keys create gcs-storage-key.json \
     --iam-account=spotify-gcs-bq-ce-sa@YOUR_PROJECT_ID.iam.gserviceaccount.com
 ```
 
+**⚠️ Importante: No subas este archivo a GitHub.**
+
 
 
 ## 4. Configurar credenciales en tu entorno local

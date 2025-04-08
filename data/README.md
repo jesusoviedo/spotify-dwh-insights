@@ -1,6 +1,8 @@
-# 📊 Entendiendo los Datos (`data/`)
+# 📊 Entendiendo los Datos
 
 Este proyecto utiliza la API de Spotify para obtener información sobre nuevos lanzamientos y sus canciones. A continuación, se describe el flujo de obtención de datos y los servicios involucrados.
+
+
 
 ## 📌 1. Obtención del token de acceso
 🔗 [Documentación Oficial](https://developer.spotify.com/documentation/web-api/tutorials/client-credentials-flow)
@@ -31,6 +33,7 @@ Antes de acceder a cualquier otro servicio, es necesario autenticar la aplicaci�
 El `access_token` obtenido se usará en las siguientes llamadas a la API.
 
 
+
 ## 🎶 2. Obtención de nuevos lanzamientos
 🔗 [Documentación Oficial](https://developer.spotify.com/documentation/web-api/reference/get-new-releases)
 
@@ -58,6 +61,7 @@ Este servicio obtiene una lista de álbumes recientemente publicados en Spotify.
         "release_date": "2025-03-26"
       }
     ]
+    ....
   }
 }
 ```
@@ -65,6 +69,8 @@ Este servicio obtiene una lista de álbumes recientemente publicados en Spotify.
 📂 **Para ver una respuesta completa, consulta el archivo:** [`example_new_releases.json`](./example_new_releases.json)
 
 Cada álbum tiene un `id`, que se usará en el siguiente servicio para obtener sus canciones.
+
+
 
 ## 🎵 3. Obtención de canciones de un álbum
 🔗 [Documentación Oficial](https://developer.spotify.com/documentation/web-api/reference/get-an-albums-tracks)
@@ -90,6 +96,7 @@ Este servicio permite obtener todas las canciones de un álbum específico.
       "duration_ms": 210000,
       "track_number": 1
     }
+    ...
   ]
 }
 ```
@@ -97,15 +104,83 @@ Este servicio permite obtener todas las canciones de un álbum específico.
 📂 **Para ver una respuesta completa, consulta el archivo:** [`example_get_album_tracks.json`](./example_get_album_tracks.json)
 
 
+
+## 📀 4. Obtención de detalles de un álbum
+🔗 [Documentación Oficial](https://developer.spotify.com/documentation/web-api/reference/get-an-album)
+
+Este servicio permite obtener información detallada de un álbum específico.
+
+### Solicitud de detalles del álbum
+#### 📤 **Método:** `GET`
+#### 🔗 **Endpoint:** `https://api.spotify.com/v1/albums/{album_id}`
+
+#### 📄 **Parámetros opcionales:**
+- `market`: código de país para filtrar disponibilidad (Ejemplo: US)
+
+#### 📥 Respuesta esperada (JSON - Ejemplo):
+
+```json
+{
+  "id": "12345",
+  "name": "Álbum Ejemplo",
+  "release_date": "2025-03-26",
+  "total_tracks": 10,
+  "artists": [
+    ....
+  ]
+  ...
+}
+```
+
+📂 **Para ver una respuesta completa, consulta el archivo:** [`example_get_album.json`](./example_get_album.json)
+
+
+
+## 🎤 5. Obtención de información de múltiples artistas
+🔗 [Documentación Oficial](https://developer.spotify.com/documentation/web-api/reference/get-multiple-artists)
+
+Este servicio permite obtener información de varios artistas a la vez mediante sus IDs.
+
+### Solicitud de información de múltiples artistas
+#### 📤 **Método:** `GET`
+#### 🔗 **Endpoint:** `https://api.spotify.com/v1/artists`
+
+#### 📄 **Parámetros opcionales:**
+- `ids`: lista de IDs de artistas separada por comas (máximo 50
+
+#### 📥 Respuesta esperada (JSON - Ejemplo):
+
+```json
+{
+  "artists": [
+    {
+      "id": "artist123",
+      "name": "Artista X",
+      "genres": ["pop", "rock"],
+      ....
+    }
+  ]
+}
+```
+
+📂 **Para ver una respuesta completa, consulta el archivo:** [`example_get_artists.json`](./example_get_artists.json)
+
+
+
 ## 🔄 Flujo de obtención de datos
 
-1️⃣ **Obtener el token de acceso** desde el servicio de autenticación.
+1️⃣ Obtener el **token de acceso** desde el servicio de autenticación.
 
-2️⃣ **Consultar nuevos lanzamientos** con el token obtenido.
+2️⃣ Consultar **nuevos lanzamientos** con el token obtenido.
 
-3️⃣ **Obtener las canciones** de cada álbum usando su id.
+3️⃣ Obtener los detalles de cada **álbum** usando su ID.
 
-4️⃣ **Almacenar los datos** para su posterior análisis o visualización.
+4️⃣ Obtener las **canciones** de cada álbum.
+
+5️⃣ Obtener información de los **artistas** relacionados.
+
+6️⃣ Cargar los datos en **BigQuery** para luego transformarlos con **DBT** y facilitar su análisis y visualización.
+
 
 📌 **Nota:** Todas las solicitudes deben incluir el token en los encabezados:
 
