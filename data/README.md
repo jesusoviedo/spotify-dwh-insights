@@ -146,7 +146,7 @@ Este servicio permite obtener información de varios artistas a la vez mediante 
 #### 🔗 **Endpoint:** `https://api.spotify.com/v1/artists`
 
 #### 📄 **Parámetros opcionales:**
-- `ids`: lista de IDs de artistas separada por comas (máximo 50
+- `ids`: lista de IDs de artistas separada por comas (máximo 50 por solicitud)
 
 #### 📥 Respuesta esperada (JSON - Ejemplo):
 
@@ -167,6 +167,51 @@ Este servicio permite obtener información de varios artistas a la vez mediante 
 
 
 
+## 🎧 6. Obtención de información de múltiples canciones
+🔗 [Documentación Oficial](https://developer.spotify.com/documentation/web-api/reference/get-several-tracks)
+
+Este servicio permite obtener información detallada de varias canciones a la vez, utilizando una lista de IDs. Es útil para recuperar atributos como la duración, el número de pista, la disponibilidad por país y especialmente la popularidad de cada canción.
+
+### Solicitud de información de múltiples canciones
+#### 📤 **Método:** `GET`
+#### 🔗 **Endpoint:** `https://api.spotify.com/v1/artists`
+
+#### 📄 **Parámetros opcionales:**
+- `ids`:  lista de IDs de canciones separadas por comas (máximo 50 por solicitud)
+
+#### 📥 Respuesta esperada (JSON - Ejemplo):
+
+```json
+{
+  "tracks": [
+    {
+      "id": "track123",
+      "name": "Canción 1",
+      "popularity": 64,
+      "duration_ms": 210000,
+      "explicit": true,
+      "available_markets": ["AR", "US", "MX"],
+      ...
+    },
+    ...
+  ]
+}
+
+```
+
+📂 **Para ver una respuesta completa, consulta el archivo:** [`example_get_tracks.json`](./example_get_tracks.json)
+
+
+
+
+
+
+
+
+
+
+
+
 ## 🔄 Flujo de obtención de datos
 
 1️⃣ Obtener el **token de acceso** desde el servicio de autenticación.
@@ -177,9 +222,17 @@ Este servicio permite obtener información de varios artistas a la vez mediante 
 
 4️⃣ Obtener las **canciones** de cada álbum.
 
-5️⃣ Obtener información de los **artistas** relacionados.
+5️⃣ Obtener la **popularidad de las canciones** utilizando el endpoint de múltiples canciones. *Este paso es esencial ya que la popularidad no está disponible cuando se obtienen las canciones de un álbum.* 
 
-6️⃣ Cargar los datos en **BigQuery** para luego transformarlos con **DBT** y facilitar su análisis y visualización.
+6️⃣ Obtener información de los **artistas** relacionados.
+
+7️⃣ Cargar los datos en **BigQuery** para luego transformarlos con **DBT** y facilitar su análisis y visualización.
+
+
+
+
+
+
 
 
 📌 **Nota:** Todas las solicitudes deben incluir el token en los encabezados:
