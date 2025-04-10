@@ -178,7 +178,7 @@ Extrae las imágenes de una estructura anidada y las relaciona con su artista co
 - Analizar las proporciones o resoluciones más comunes en las imágenes.
 - Enriquecer perfiles de artista con contenido visual.
 
-### Dimensiones
+### Tablas de Dimensiones
 Las dimensiones representan entidades clave del negocio, como álbumes, artistas o canciones. Se construyen a partir de los modelos de staging y contienen información depurada, transformada y enriquecida para su uso en análisis, reportes o dashboards. Estas tablas permiten responder preguntas del tipo: *¿qué tan popular es un artista?, ¿cuáles son los álbumes recientes con más canciones explícitas?, o ¿en qué países está disponible una canción?*
 
 #### **Dimensión de Álbumes (`dim_albums`)**
@@ -212,12 +212,30 @@ Las dimensiones representan entidades clave del negocio, como álbumes, artistas
 - Relacionar la canción con atributos del álbum como su recencia y popularidad.
 
 
+### Tablas de Hechos
+Las tablas de hechos permiten analizar relaciones entre entidades, realizar cálculos agregados y responder preguntas cuantitativas. Se construyen a partir de la combinación de dimensiones y staging models, y se utilizan para crear métricas, indicadores clave (KPIs) y visualizaciones en dashboards.
 
+#### **Contribuciones de Artistas por Álbum (`fact_artist_album_contributions`)**
 
+**¿Qué representa?** - Esta tabla de hechos detalla la contribución de cada artista a los álbumes en los que participa, midiendo la cantidad de canciones en las que colabora dentro de un álbum específico. Combina información de los modelos de staging y dimensiones para entender mejor la relación entre artistas y álbumes.
 
-### Tabla de Hechos
-La tabla de hechos centraliza eventos o métricas cuantificables.
+**¿Para qué sirve?** - Permite:
+- Saber cuántas canciones de un álbum fueron interpretadas por un determinado artista.
+- Calcular el porcentaje de participación de un artista dentro de un álbum.
+- Identificar si un artista es el único que participa en todo el álbum.
+- Cruzar características de los álbumes (como popularidad o duración) con los perfiles de los artistas (géneros, seguidores, popularidad máxima).
+- Crear visualizaciones sobre colaboraciones y participación individual o grupal dentro de álbumes musicales.
 
+#### **Métricas de Artistas por Álbum (`fact_album_artist_metrics`)**
+
+**¿Qué representa?** - Esta tabla de hechos sintetiza métricas clave por combinación de artista y álbum, mostrando cómo se comportan los artistas dentro de cada álbum en el que participan. Integra información proveniente de los modelos de dimensión de artistas, álbumes y canciones, agrupada por artista y álbum.
+
+**¿Para qué sirve?** - Permite:
+- Analizar el desempeño de un artista dentro de un álbum específico (popularidad, duración media de canciones, contenido explícito).
+- Comparar álbumes según la participación de artistas y la naturaleza de sus canciones.
+- Clasificar y categorizar la duración y popularidad promedio de canciones por artista en un álbum.
+- Usar las características del artista (géneros, cantidad de imágenes, popularidad media) y del álbum (tipo, año, popularidad) para análisis detallados.
+- Facilitar visualizaciones y dashboards que combinen dimensiones artísticas y editoriales (álbumes) para entender tendencias de producción y colaboración musical.
 
 
 ## Buenas Prácticas

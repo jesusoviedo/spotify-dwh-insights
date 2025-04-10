@@ -49,7 +49,7 @@ albums AS
 SELECT
     songs.song_id,
     songs.song_name,
-    {{ categorize_song_duration('song_duration_seconds') }} AS song_duration_category,
+    {{ categorize_song_duration_seconds('song_duration_seconds') }} AS song_duration_category,
     {{ format_song_duration('song_duration_seconds') }} AS song_duration_time,
     songs.song_duration_minutes,
     songs.song_type,

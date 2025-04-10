@@ -458,3 +458,335 @@ models:
         description: "Fecha de inserción del registro en la tabla."
         tests:
           - not_null
+
+  - name: fact_artist_album_contributions
+    description: |
+      Esta tabla de hechos registra las contribuciones de los artistas a los álbumes, incluyendo el número de canciones de cada artista en un álbum, la popularidad del álbum, las métricas relacionadas con las canciones explícitas y la duración promedio de las canciones. Además, se indican si un artista es el único participante en el álbum.
+
+    columns:
+      - name: album_id
+        data_type: string
+        description: "ID único del álbum, utilizado para identificar el álbum dentro de la plataforma musical."
+        tests:
+          - not_null
+
+      - name: album_name
+        data_type: string
+        description: "Nombre del álbum, que representa el título del álbum musical."
+        tests:
+          - not_null
+
+      - name: album_release_year
+        data_type: int64
+        description: "Año de lanzamiento del álbum. Indica el año en que el álbum fue oficialmente publicado."
+        tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              min_value: 1900
+              inclusive: true
+
+      - name: album_popularity
+        data_type: int64
+        description: "Valor numérico que representa la popularidad del álbum en la plataforma musical, basado en diversas métricas como el número de reproducciones, seguidores, etc."
+        tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              min_value: 0
+              max_value: 100
+              inclusive: true
+
+      - name: album_is_popular
+        data_type: string
+        description: "Categoría que indica si el álbum es popular ('si') o no ('no'), basado en su puntaje de popularidad."
+        tests:
+          - not_null
+          - accepted_values:
+              values: ["si", "no"]
+
+      - name: album_popularity_category
+        data_type: string
+        description: "Categoría que clasifica el álbum según su popularidad, como 'alto', 'medio' o 'bajo'."
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['baja', 'moderada', 'alta', 'muy alta', 'desconocida']
+
+      - name: album_total_tracks
+        data_type: int64
+        description: "Número total de pistas (canciones) presentes en el álbum."
+        tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              min_value: 1
+              inclusive: true
+
+      - name: album_total_song_explicit
+        data_type: int64
+        description: "Número total de canciones explícitas en el álbum, según la clasificación de contenido."
+        tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              min_value: 0
+              inclusive: true
+
+      - name: album_avg_song_duration
+        data_type: string
+        description: "Duración promedio de las canciones en el álbum, en formato de tiempo (HH:MM:SS)."
+        tests:
+          - not_null
+          - check_negative_values
+
+      - name: artist_id
+        data_type: string
+        description: "ID único del artista, utilizado para identificar al artista dentro de la plataforma musical."
+        tests:
+          - not_null
+
+      - name: artist_name
+        data_type: string
+        description: "Nombre del artista, que representa el nombre del músico o banda."
+        tests:
+          - not_null
+
+      - name: artist_max_popularity
+        data_type: int64
+        description: "El valor máximo de popularidad alcanzado por el artista, basado en las métricas de la plataforma."
+        tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              min_value: 0
+              max_value: 100
+              inclusive: true
+
+      - name: artist_max_popularity_category
+        data_type: string
+        description: "Categoría de la popularidad máxima del artista, como 'alto', 'medio' o 'bajo'."
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['baja', 'moderada', 'alta', 'muy alta', 'desconocida']
+
+      - name: artist_genres_count
+        data_type: int64
+        description: "Número de géneros musicales asociados con el artista."
+        tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              min_value: 0
+              inclusive: true
+
+      - name: artist_genres
+        data_type: string
+        description: "Lista de géneros musicales asociados con el artista. Puede contener varios géneros separados por comas."
+        tests:
+          - not_null
+
+      - name: artist_images_count
+        data_type: int64
+        description: "Número de imágenes disponibles del artista, que pueden ser usadas para representar su perfil."
+        tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              min_value: 0
+              inclusive: true
+
+      - name: artist_album_song_count
+        data_type: int64
+        description: "Número total de canciones de un artista dentro de un álbum específico."
+        tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              min_value: 1
+              inclusive: true
+
+      - name: artist_album_song_percent
+        data_type: float64
+        description: "Porcentaje del total de canciones en el álbum que son interpretadas por el artista, calculado como (total_songs_by_artist_in_album / total_tracks) * 100."
+        tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              min_value: 0
+              inclusive: false
+
+      - name: is_only_artist_on_album
+        data_type: string
+        description: "Indica si el artista es el único participante en el álbum (si = 'si', no = 'no'). Este valor es 'si' solo cuando el artista es el único en todo el álbum, sin colaboraciones externas."
+        tests:
+          - not_null
+          - accepted_values:
+              values: ["si", "no"]
+
+  - name: fact_album_artist_metrics
+    description: >
+      Tabla de hechos que resume métricas clave por combinación de artista y álbum.
+      Contiene información agregada de duración, popularidad, y contenido explícito de las canciones,
+      así como características generales del artista y el álbum. Útil para análisis de participación de artistas
+      en álbumes y comparaciones entre ellos.
+
+    columns:
+      - name: artist_id
+        data_type: string
+        description: Identificador único del artista.
+        tests:
+          - not_null
+
+      - name: artist_name
+        data_type: string
+        description: Nombre del artista.
+        tests:
+          - not_null
+
+      - name: artist_avg_popularity
+        data_type: float64
+        description: Popularidad promedio del artista en base a sus canciones.
+        tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              min_value: 0
+              max_value: 100
+              inclusive: true
+
+      - name: artist_avg_popularity_category
+        data_type: string
+        description: Categoría de popularidad del artista (e.g. baja, media, alta).
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['baja', 'moderada', 'alta', 'muy alta', 'desconocida']
+
+      - name: artist_genres
+        data_type: string
+        description: Lista de géneros musicales asociados al artista.
+        tests:
+          - not_null
+
+      - name: artist_genres_count
+        data_type: int64
+        description: Número de géneros musicales asociados al artista.
+        tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              min_value: 0
+              inclusive: true
+
+      - name: artist_images_count
+        data_type: int64
+        description: Cantidad de imágenes disponibles para el artista.
+        tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              min_value: 0
+              inclusive: true
+
+      - name: album_id
+        data_type: string
+        description: Identificador único del álbum.
+        tests:
+          - not_null
+
+      - name: album_name
+        data_type: string
+        description: Nombre del álbum.
+        tests:
+          - not_null
+
+      - name: album_type
+        data_type: string
+        description: Tipo de álbum (e.g. álbum, single, compilación).
+        tests:
+          - not_null
+
+      - name: album_release_year
+        data_type: int64
+        description: Año de lanzamiento del álbum.
+        tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              min_value: 1900
+              inclusive: true
+
+      - name: album_popularity
+        data_type: int64
+        description: Popularidad del álbum según Spotify.
+        tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              min_value: 0
+              max_value: 100
+              inclusive: true
+
+      - name: album_popularity_category
+        data_type: string
+        description: Categoría de popularidad del álbum (e.g. baja, media, alta).
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['baja', 'moderada', 'alta', 'muy alta', 'desconocida']
+
+      - name: album_length_category
+        data_type: string
+        description: Clasificación del álbum según número total de canciones.
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['mini album', 'album breve', 'album completo', 'desconocido']
+
+      - name: album_avg_song_duration
+        data_type: string
+        description: Duración promedio de las canciones del álbum en minutos.
+        tests:
+          - not_null
+          - check_negative_values
+
+      - name: total_songs
+        data_type: int64
+        description: Número total de canciones del álbum en las que participa el artista.
+        tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              min_value: 1
+              inclusive: true
+
+      - name: total_explicit_songs
+        data_type: int64
+        description: Número total de canciones explícitas del artista en el álbum.
+        tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              min_value: 0
+              inclusive: true
+
+      - name: avg_song_duration
+        data_type: float64
+        description: Duración promedio de las canciones del artista en el álbum (en minutos).
+        tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              min_value: 0
+              inclusive: false
+
+      - name: avg_song_duration_category
+        data_type: string
+        description: Clasificación de duración promedio (e.g. corta, media, larga).
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['corta', 'media', 'larga', 'desconocida']
+
+      - name: avg_song_popularity
+        data_type: float64
+        description: Popularidad promedio de las canciones del artista en el álbum.
+        tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              min_value: 0
+              max_value: 100
+              inclusive: true
+
+      - name: avg_song_popularity_category
+        data_type: string
+        description: Clasificación de popularidad promedio (e.g. baja, media, alta).
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['baja', 'moderada', 'alta', 'muy alta', 'desconocida']
