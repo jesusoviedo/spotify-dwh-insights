@@ -168,16 +168,29 @@ def obtener_artistas(token, dic_list_artista):
         print(f"Error {response.status_code}: {response.text}")
 
 
-def obtener_popularidad_cancion(token, id_cancion):
+def transformar_datos_canciones(list_canciones):
 
-    url = f"{URI_TRACKS}/{id_cancion}"
+    transformed_canciones = {
+        cancion["id"]: cancion["popularity"] 
+        for cancion in list_canciones 
+    }        
+    return transformed_canciones
+
+
+def obtener_popularidad_canciones(token, list_id_cancion):
+
+    url = URI_TRACKS
+
     headers = {"Authorization": f"Bearer {token}"}
-    response = requests.get(url, headers=headers)
+    params = {"ids": ",".join(list_id_cancion)}
+
+    response = requests.get(url, headers=headers, params=params)
 
     if response.status_code == 200:
         data = response.json()
-
-        return data.get("popularity")
+        items = data.get("tracks")
+        
+        return transformar_datos_canciones(items)
     else:
         print(f"Error {response.status_code}: {response.text}")
 
@@ -198,18 +211,19 @@ def obtener_canciones_albumes(token, id_album, data_album, url=None):
         data = response.json()
         items = data.get("items", [])
         
+        list_id_canciones = [item.get("id") for item in items]
+        dict_pop_canciones = obtener_popularidad_canciones(token, list_id_canciones)
+
         for item in items:
             
-            id_cancion =item.get("id")
-            popularidad_cancion = obtener_popularidad_cancion(token, id_cancion)
-            
+            id_cancion =item.get("id")            
             artists_list = item.get("artists", [])
             list_id_artist = [artist.get("id") for artist in artists_list]
             dic_list_artista = {"id_song": id_cancion, "list_id_artist": list_id_artist}           
             artistas = obtener_artistas(token, dic_list_artista)
             
             item.update({
-                "popularity": popularidad_cancion,
+                "popularity": dict_pop_canciones.get(id_cancion),
                 "id_album": id_album,
                 "album": data_album, 
                 "artists": artistas,
