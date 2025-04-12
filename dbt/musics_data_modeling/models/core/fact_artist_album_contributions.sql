@@ -32,6 +32,7 @@ dim_albums AS
     SELECT
         album_id,
         album_name,
+        album_release_date,
         album_release_year,
         album_popularity,
         album_is_popular,
@@ -57,6 +58,7 @@ SELECT
     dim_albums.album_id,
     dim_albums.album_name,
     dim_albums.album_release_year,
+    dim_albums.album_release_date,
     dim_albums.album_popularity,
     dim_albums.album_is_popular,
     dim_albums.album_popularity_category,

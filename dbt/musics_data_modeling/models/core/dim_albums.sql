@@ -23,7 +23,7 @@ songs AS
         ROUND(MAX(song_duration_minutes), 2) AS song_max_duration_minutes,
         ROUND(MIN(song_duration_minutes), 2) AS song_min_duration_minutes,
         ROUND(AVG(song_duration_minutes), 2) AS song_avg_duration_minutes,
-        COUNT({{ is_true_boolean('song_is_explicit') }}) AS song_total_explicit
+        SUM({{ is_true_boolean('song_is_explicit') }}) AS song_total_explicit
     FROM {{ ref('stg_songs') }}
     GROUP BY album_id
 )
