@@ -31,7 +31,7 @@ Luego, estos datos serán almacenados en un Data Lake, procesados para un Data W
     - Se aplican transformaciones y modelos con dbt.
 
 3. Visualización
-    - Se usa Looker Studio como herramienta de BI para crear un dashboard con dos gráficas relevantes.
+    - Se usa Looker Studio como herramienta de BI para crear un Dashboard interativo con dos páginas.
 
 
 ## 🛠️ Tecnologías utilizadas
@@ -140,8 +140,8 @@ En esta carpeta se encuentran los flujos de trabajo definidos en Kestra. Aquí s
 Aquí se encuentran los modelos de transformación creados con dbt para estructurar los datos almacenados en BigQuery. Contiene definiciones de modelos, fuentes de datos, pruebas y documentación generada automáticamente.
 
 
-### 📈 Visualización de Datos ([`visualizations/`](./visualizations))
-Esta carpeta contiene los archivos relacionados con la generación de dashboards y reportes. Aquí se almacenan las configuraciones y posibles scripts necesarios para conectar con herramientas de visualización.
+### 📈 Visualización de Datos con Looker Studio ([`visualizations/`](./visualizations))
+Esta carpeta contiene los recursos relacionados con la creación de dashboards interactivos en Looker Studio. Incluye configuraciones y documentación del reporte desarrollado, el cual se actualiza automáticamente cada 12 horas o bajo demanda. Actualmente, el dashboard cuenta con dos páginas que ofrecen insights visuales a partir de los datos procesados, permitiendo explorar métricas clave.
 
 
 ### 🔄 Integración y Despliegue Automático ([`.github/workflows/`](./.github/workflows)`)

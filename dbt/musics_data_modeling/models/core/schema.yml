@@ -476,6 +476,12 @@ models:
         tests:
           - not_null
 
+      - name: album_release_date
+        data_type: date
+        description: "Fecha de lanzamiento del álbum."
+        tests:
+          - not_null
+
       - name: album_release_year
         data_type: int64
         description: "Año de lanzamiento del álbum. Indica el año en que el álbum fue oficialmente publicado."
