@@ -1,0 +1,132 @@
+id: spotify-tracks-dbt-daily
+namespace: spotify-dwh-insights.transformation
+
+
+inputs:
+  - id: dbt_command
+    displayName: Comando
+    type: SELECT
+    allowCustomValue: true
+    defaults: dbt build
+    values:
+      - dbt build
+      - dbt debug
+  - id: target
+    displayName: Entorno
+    type: SELECT
+    allowCustomValue: true
+    defaults: staging
+    values:
+      - prod
+      - staging
+
+tasks:
+
+  - id: dbt
+    type: io.kestra.plugin.core.flow.WorkingDirectory
+    tasks:
+      - id: clone_repository
+        type: io.kestra.plugin.git.Clone
+        url: https://github.com/jesusoviedo/spotify-dwh-insights
+        branch: main 
+
+      - id: dbt_build
+        type: io.kestra.plugin.dbt.cli.DbtCLI
+        taskRunner:
+          type: io.kestra.plugin.scripts.runner.docker.Docker
+          delete: true
+        containerImage: ghcr.io/kestra-io/dbt-bigquery:latest
+        storeManifest:
+          key: manifest.json
+          namespace: "{{ flow.namespace }}"
+        projectDir: dbt/musics_data_modeling
+        commands:
+          - dbt deps --project-dir dbt/musics_data_modeling
+          - dbt debug --project-dir dbt/musics_data_modeling
+          - dbt build --project-dir dbt/musics_data_modeling
+        inputFiles:
+          sa.json: "{{ secret('GCP_CREDENTIALS') }}"
+        profiles: |
+          musics_data_modeling:
+            outputs:
+              dev:
+                type: bigquery
+                dataset: "{{kv('DATASET_NAME_DBT')}}"
+                project: "{{ secret('PROJECT_ID') }}"
+                location: "{{kv('LOCATION')}}"
+                keyfile: sa.json
+                method: service-account
+                priority: interactive
+                threads: 3
+                job_execution_timeout_seconds: 300
+                job_retries: 1
+            target: dev
+
+
+
+        #dbtPath: /usr/local/bin/dbt
+        
+        #inputFiles:
+        #  .profile/profiles.yml: |
+        #    musics_data_modeling:
+        #      outputs:
+        #        dev:
+        #          type: bigquery
+        #          dataset: spotify_analytics
+        #          project: spotify-dwh-insights
+        #          fixed_retries: 1
+        #          keyfile: sa.json
+        #          location: US
+        #          method: service-account
+        #          priority: interactive
+        #          threads: 8
+        #          timeout_seconds: 300
+        #      target: dev
+        #  sa.json: "{{ secret('GCP_CREDENTIALS') }}"
+
+
+
+#  - id: sync-dbt-models-from-github
+#    type: io.kestra.plugin.git.SyncNamespaceFiles
+#    url: https://github.com/jesusoviedo/spotify-dwh-insights
+#    branch: main
+#    namespace: "{{flow.namespace}}"
+#    gitDirectory: dbt
+#    dryRun: false
+
+
+#  - id: dbt-build
+#    type: io.kestra.plugin.dbt.cli.DbtCLI
+#    env:
+#      DBT_DATABASE: "{{ secret('PROJECT_ID') }}"
+#      DBT_SCHEMA: "{{kv('DATASET_NAME')}}"
+#    namespaceFiles:
+#      enabled: true
+#    containerImage: ghcr.io/kestra-io/dbt-bigquery:latest
+#    taskRunner:
+#      type: io.kestra.plugin.scripts.runner.docker.Docker
+#    inputFiles:
+#      sa.json: "{{ secret('GCP_CREDENTIALS') }}"
+#    commands:
+#      - dbt deps --project-dir musics_data_modeling
+#      - dbt build --project-dir musics_data_modeling
+#    projectDir: musics_data_modeling
+    
+#    storeManifest:
+#      key: manifest.json
+#      namespace: "{{ flow.namespace }}"
+#    profiles: |
+#      musics_data_modeling:
+#        outputs:
+#          dev:
+#            type: bigquery
+#            dataset: "{{kv('DATASET_NAME_DBT')}}"
+#            project: "{{ secret('PROJECT_ID') }}"
+#            location: "{{kv('LOCATION')}}"
+#            keyfile: sa.json
+#           method: service-account
+#            priority: interactive
+#            threads: 3
+#            job_execution_timeout_seconds: 300
+#            job_retries: 1
+#        target: dev

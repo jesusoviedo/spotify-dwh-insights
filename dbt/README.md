@@ -46,7 +46,7 @@ Ejecuta los siguientes comandos para iniciar un nuevo proyecto en DBT:
 
 ```bash
 pipenv shell
-dbt init tracks_data_modeling
+dbt init musics_data_modeling
 ```
 
 
@@ -64,14 +64,14 @@ Durante la inicialización, DBT te pedirá algunos datos de configuración. Entr
 
 
 ### Paso 5: Verificar la estructura del proyecto
-Abre el archivo `dbt_project.yml` dentro de la carpeta `tracks_data_modeling` para asegurarte de que la configuración del proyecto es correcta.
+Abre el archivo `dbt_project.yml` dentro de la carpeta `musics_data_modeling` para asegurarte de que la configuración del proyecto es correcta.
 
 
 ### Paso 6: Validar la conectividad con BigQuery
 Para confirmar que la conexión con BigQuery es correcta, ejecuta el siguiente comando dentro del directorio del proyecto:
 
 ```bash
-cd tracks_data_modeling
+cd musics_data_modeling
 dbt debug
 ```
 
