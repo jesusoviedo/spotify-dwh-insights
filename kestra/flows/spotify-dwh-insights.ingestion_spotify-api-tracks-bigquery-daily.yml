@@ -4,24 +4,24 @@ namespace: spotify-dwh-insights.ingestion
 tasks:
   - id: elt_api_spotify_tracks
     type: io.kestra.plugin.scripts.python.Commands
+    retry:
+      maxAttempt: 3
+      interval: PT30S
+      type: constant
     namespaceFiles:
       enabled: true
-    containerImage: rj24/spotify-pipeline:v2.0
+    inputFiles:
+      sa.json: "{{ secret('GCP_CREDENTIALS') }}"
+    containerImage: rj24/spotify-pipeline:v3.0
     taskRunner:
       type: io.kestra.plugin.scripts.runner.docker.Docker
-      pullPolicy: IF_NOT_PRESENT
-      retry:
-        maxAttempt: 3
-        delay: PT5M  
-      volumes:
-        - /files:/key_gcp
+      pullPolicy: ALWAYS
     commands:
-      #- python /app/spotify_data_pipeline.py --bucket_name={{ kv('BUCKET_NAME') }} --dataset_name={{ kv('DATASET_NAME') }}
-      - --bucket_name={{ kv('BUCKET_NAME') }} --dataset_name={{ kv('DATASET_NAME') }}
+      - python /app/spotify_data_pipeline.py --bucket_name={{ kv('BUCKET_NAME') }} --dataset_name={{ kv('DATASET_NAME') }}
     env:
       CLIENTE_ID: "{{ secret('CLIENTE_ID') }}"
       CLIENTE_SECRET: "{{ secret('CLIENTE_SECRET') }}"
-      GOOGLE_APPLICATION_CREDENTIALS: gcp/gcs-storage-key.json
+      GOOGLE_APPLICATION_CREDENTIALS: sa.json
 
 triggers:
     - id: schedule_daily_run

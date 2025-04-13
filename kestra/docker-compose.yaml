@@ -61,6 +61,8 @@ services:
                 values:
                   volume-enabled: true
           url: http://localhost:8080/
+          tutorialFlows:
+            enabled:false
         micronaut:
           io:
             watch:
@@ -69,7 +71,8 @@ services:
                 - /local_flows
       SECRET_CLIENTE_ID:  ${SECRET_CLIENTE_ID}
       SECRET_CLIENTE_SECRET: ${SECRET_CLIENTE_SECRET}
-      #GOOGLE_APPLICATION_CREDENTIALS: /files/gcs-storage-key.json
+      SECRET_GCP_CREDENTIALS: ${SECRET_GCP_CREDENTIALS}
+      SECRET_PROJECT_ID: ${SECRET_PROJECT_ID}
     ports:
       - "8080:8080"
       - "8081:8081"
