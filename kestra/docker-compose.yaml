@@ -58,8 +58,8 @@ services:
                 values:
                   volume-enabled: true
           url: http://localhost:8080/
-          tutorial:
-            enabled:false
+          tutorialFlows:
+            enabled: false
         micronaut:
           io:
             watch:
