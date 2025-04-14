@@ -33,7 +33,7 @@ jobs:
           grep -E "SECRET_CLIENTE_ID|SECRET_CLIENTE_SECRET" kestra/.env | sed 's/=.*/=***REDACTED***/'
           grep -E "SECRET_GCP_CREDENTIALS|SECRET_PROJECT_ID" kestra/.env | sed 's/=.*/=***REDACTED***/'
 
-      - name: Fail if required env vars are missing
+      - name: Check required env vars
         run: |
           for VAR in KESTRA_USER KESTRA_PASSWORD POSTGRES_DB POSTGRES_USER POSTGRES_PASSWORD SECRET_CLIENTE_ID SECRET_CLIENTE_SECRET SECRET_PROJECT_ID SECRET_GCP_CREDENTIALS; do
             grep -q "^$VAR=" kestra/.env || (echo "$VAR is missing!" && exit 1)
@@ -68,9 +68,9 @@ jobs:
             #source .env
             #set +a
 
-            sudo docker-compose down --env-file kestra/.env 
-            sudo docker-compose pull --env-file kestra/.env
-            sudo docker-compose up --env-file kestra/.env -d
+            sudo docker-compose down --env-file /opt/kestra/.env 
+            sudo docker-compose pull --env-file /opt/kestra/.env
+            sudo docker-compose up --env-file /opt/kestra/.env
           "
 
 
