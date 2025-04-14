@@ -86,7 +86,7 @@ jobs:
           echo "Lanzando el flujo init-prod-kv..."
           curl -X POST "http://${{ secrets.KESTRA_HOSTNAME }}:8080/api/v1/executions" \
             -u "${{ secrets.KESTRA_USER }}:${{ secrets.KESTRA_PASSWORD }}" \
-            -H "Content-Type: application/data" \
+            -H "Content-Type: application/json" \
             -d '{
               "namespace": "spotify-dwh-insights.prod",
               "flowId": "init-prod-kv"
