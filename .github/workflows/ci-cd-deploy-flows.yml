@@ -88,6 +88,6 @@ jobs:
             -u "${{ secrets.KESTRA_USER }}:${{ secrets.KESTRA_PASSWORD }}" \
             -H "Content-Type: application/json" \
             -d '{
-              "namespace": "spotify-dwh-insights",
+              "namespace": "spotify-dwh-insights.prod",
               "flowId": "init-prod-kv"
             }'
