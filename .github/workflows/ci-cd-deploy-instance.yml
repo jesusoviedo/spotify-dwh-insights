@@ -32,8 +32,23 @@ jobs:
       - name: Restart Docker Compose on GCP instance
         run: |
           gcloud compute ssh ${{secrets.GCP_INSTANCE_NAME}} --zone ${{secrets.GCP_ZONE}} --project ${{secrets.GCP_PROJECT_ID}} --command "
+            export KESTRA_USER="${{secrets.KESTRA_USER}}"
+            export KESTRA_PASSWORD="${{secrets.KESTRA_PASSWORD}}"
+
+            export POSTGRES_DB="${{secrets.POSTGRES_DB}}"
+            export POSTGRES_USER="${{secrets.POSTGRES_USER}}"
+            export POSTGRES_PASSWORD="${{secrets.POSTGRES_PASSWORD}}"
+
+            export SECRET_CLIENTE_ID="${{secrets.SECRET_CLIENTE_ID_BASE64}}"
+            export SECRET_CLIENTE_SECRET="${{secrets.SECRET_CLIENTE_SECRET_BASE64}}"
+            export SECRET_PROJECT_ID="${{secrets.SECRET_PROJECT_ID_BASE64}}"
+            export SECRET_GCP_CREDENTIALS="${{secrets.SECRET_GCP_CREDENTIALS_BASE64}}"  
+          
             cd /opt/kestra &&
-            docker-compose down &&
-            docker-compose pull &&
-            docker-compose up -d
+            sudo docker-compose down &&
+            sudo docker-compose pull &&
+            sudo docker-compose up -d
           "
+
+
+
