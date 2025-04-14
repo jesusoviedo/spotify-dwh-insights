@@ -1,0 +1,71 @@
+name: CI-CD-Deploy-Kestra-Flows
+on:
+  pull_request:
+    branches:
+      - 'main'
+    paths:
+      - 'kestra/flows/**'
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    name: Kestra validate
+    steps:
+      - name: Checkout the repository
+        uses: actions/checkout@v4
+
+      - name: Validate all flows
+        uses: kestra-io/validate-action@master
+        with:
+          directory: ./kestra/flows
+          resource: flow
+          server: ${{secrets.KESTRA_HOSTNAME}}
+          user: ${{secrets.KESTRA_USER}}
+          password: ${{secrets.KESTRA_PASSWORD}}
+
+  prod:
+    runs-on: ubuntu-latest
+    needs: validate
+    steps:
+      - name: Checkout the repository
+        uses: actions/checkout@v4
+
+      - name: Deploy spotify-dwh-insights flows
+        uses: kestra-io/deploy-action@master
+        with:
+          namespace: spotify-dwh-insights
+          directory: ./kestra/flows
+          resource: flow
+          server: ${{secrets.KESTRA_HOSTNAME}}
+          user: ${{secrets.KESTRA_USER}}
+          password: ${{secrets.KESTRA_PASSWORD}}
+          delete: false
+  
+  run-init-kv:
+    name: Run init-prod-kv flow
+    runs-on: ubuntu-latest
+    needs: prod 
+    steps:
+      - name: Wait for Kestra to be healthy
+        run: |
+          echo "Esperando a que Kestra esté arriba..."
+          for i in {1..10}; do
+            if curl -s -u "${{ secrets.KESTRA_USER }}:${{ secrets.KESTRA_PASSWORD }}" http://${{ secrets.KESTRA_HOSTNAME }}:8081/health | grep '"status":"UP"' > /dev/null; then
+              echo "Kestra está listo."
+              break
+            else
+              echo "Esperando 10 segundos..."
+              sleep 10
+            fi
+          done
+
+      - name: Run init-prod-kv flow
+        run: |
+          echo "Lanzando el flujo init-prod-kv..."
+          curl -X POST "http://${{ secrets.KESTRA_HOSTNAME }}:8080/api/v1/executions" \
+            -u "${{ secrets.KESTRA_USER }}:${{ secrets.KESTRA_PASSWORD }}" \
+            -H "Content-Type: application/json" \
+            -d '{
+              "namespace": "spotify-dwh-insights",
+              "flowId": "init-prod-kv"
+            }'
