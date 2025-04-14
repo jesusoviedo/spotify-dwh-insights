@@ -1,0 +1,41 @@
+id: init-prod-kv
+namespace: spotify-dwh-insights.prod
+description: This flow initializes the Key-Value (KV) storage for the Spotify DWH Insights project.
+
+
+tasks:
+  - id: gcp_location
+    type: io.kestra.plugin.core.kv.Set
+    key: LOCATION
+    kvType: STRING
+    value: US
+    namespace: spotify-dwh-insights
+
+  - id: gcp_bucket_name
+    type: io.kestra.plugin.core.kv.Set
+    key: BUCKET_NAME
+    kvType: STRING
+    value: spotify-dwh-insights-music-info
+    namespace: spotify-dwh-insights
+
+  - id: gcp_dataset_name
+    type: io.kestra.plugin.core.kv.Set
+    key: DATASET_NAME
+    kvType: STRING
+    value: spotify_raw_data
+    namespace: spotify-dwh-insights
+
+  - id: gcp_dataset_name_dbt
+    type: io.kestra.plugin.core.kv.Set
+    key: DATASET_NAME_DBT
+    kvType: STRING
+    value: spotify_analytics
+    namespace: spotify-dwh-insights
+
+
+triggers:
+  - id: hourly_trigger
+    type: io.kestra.plugin.core.trigger.Schedule
+    cron: "0 * * * *"
+    timezone: "America/Asuncion"
+    description: "Trigger that runs every hour"

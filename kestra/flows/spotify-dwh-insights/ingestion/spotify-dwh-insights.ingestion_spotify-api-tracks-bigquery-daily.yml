@@ -1,6 +1,10 @@
 id: spotify-api-tracks-bigquery-daily
 namespace: spotify-dwh-insights.ingestion
+description: |
+  This flow ingests Spotify API data into BigQuery daily. It uses the Spotify API to fetch tracks data and stores it in a Google Cloud Storage bucket.
+  The data is then loaded into BigQuery for further analysis. The flow is triggered twice a day at 6 AM and 6 io.kestra.plugin.scripts.python.Commands
 
+  
 tasks:
   - id: elt_api_spotify_tracks
     type: io.kestra.plugin.scripts.python.Commands
@@ -23,8 +27,10 @@ tasks:
       CLIENTE_SECRET: "{{ secret('CLIENTE_SECRET') }}"
       GOOGLE_APPLICATION_CREDENTIALS: sa.json
 
+
 triggers:
   - id: twice_daily_run
     type: io.kestra.plugin.core.trigger.Schedule
     cron: "0 6,18 * * *"
     timezone: "America/Asuncion"
+    description: "Trigger that runs twice a day at 6 AM and 6 PM"
