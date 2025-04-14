@@ -62,6 +62,7 @@ Para nuestro caso, podemos definir las siguientes variables en la terminal:
 
 ```bash
 export SECRET_CLIENTE_ID="$(echo -n "<cliente_id>" | base64)"
+export SECRET_PROJECT_ID="$(echo -n "<project_id>" | base64)"
 export SECRET_CLIENTE_SECRET="$(echo -n "<cliente_secret>" | base64)"
 export SECRET_GCP_CREDENTIALS="$(base64 gcs-storage-key.json)"  
 ```
@@ -72,7 +73,8 @@ Luego, en el `docker-compose.yml`, se pueden referenciar de esta manera:
 environment:
   SECRET_CLIENTE_ID: ${SECRET_CLIENTE_ID}  
   SECRET_CLIENTE_SECRET: ${SECRET_CLIENTE_SECRET} 
-  GOOGLE_APPLICATION_CREDENTIALS: ${SECRET_GCP_CREDENTIALS}
+  SECRET_PROJECT_ID: ${SECRET_PROJECT_ID}
+  SECRET_GCP_CREDENTIALS: ${SECRET_GCP_CREDENTIALS}
 ```
 
 Esto garantiza que los secrets se mantengan fuera del código y se administren de manera más segura dentro del entorno de ejecución.
@@ -108,27 +110,45 @@ docker-compose logs
 
 En esta sección se explica el propósito de cada flujo de Kestra presente en este proyecto:
 
+
 ### Flow `ingestion_spotify-api-tracks-bigquery-daily.yaml`
 
 #### **Descripción:**
-Este flujo en Kestra se encarga de extraer datos desde la API de Spotify y almacenarlos en Google Cloud Storage (GCS). Utiliza un contenedor de Docker con la imagen `rj24/spotify-pipeline` para ejecutar el script `spotify_data_pipeline.py`, que se encuentra dentro del contenedor.
+Este flujo en Kestra se encarga de extraer datos desde la API de Spotify y almacenarlos en Google Cloud Storage (GCS) y BigQuery. Utiliza un contenedor de Docker con la imagen `rj24/spotify-pipeline` para ejecutar el script `spotify_data_pipeline.py`, que se encuentra dentro del contenedor. 
 
 #### **Propósito:**
 - Conectar con la API de Spotify utilizando credenciales almacenadas en secrets.
 - Extraer datos sobre álbumes recientes de determinados artistas.
 - Guardar la información en el Data Lake (GCS) dentro del bucket definido en la variable `BUCKET_NAME`.
-- Organizar los datos dentro del dataset de BigQuery especificado en `DATASET_NAME`.
+- Cargar la información procesada dentro de un dataset de BigQuery (`DATASET_NAME`).
 
 #### **Frecuencia de ejecución:**
-- Este flujo se ejecuta automáticamente todos los días a las 6:00 AM (UTC) gracias a un trigger basado en cron (`"0 6 * * *"`).
+- Este flujo se ejecuta automáticamente todos los días a las 6:00 AM y 6:00 PM UTC-3 (`cron: "0 6,18 * * *"`).
 - En caso de fallo, Kestra intentará reintentar la ejecución hasta 3 veces, con un intervalo de espera de 5 minutos entre cada intento (`retry.maxAttempt: 3`, `retry.delay: PT5M`).
-- Esto garantiza una mayor resiliencia, reduciendo el impacto de posibles fallos temporales en la API de Spotify o en la infraestructura de procesamiento.
 
 #### **Funcionamiento del código:**
-- La tarea principal (`elt_api_spotify_tracks`) se ejecuta dentro de un contenedor de Docker y usa Kestra para gestionar la orquestación.
-- Se utilizan variables de entorno (`SECRET_CLIENTE_ID`, `SECRET_CLIENTE_SECRET`, `GOOGLE_APPLICATION_CREDENTIALS`) para autenticarse en la API de Spotify y en GCP.
+- La tarea principal (`elt_api_spotify_tracks`) se ejecuta dentro de un contenedor Docker usando la imagen `rj24/spotify-pipeline:v3.0`.
+- Se utilizan variables de entorno (`SECRET_CLIENTE_ID`, `SECRET_CLIENTE_SECRET`, `SECRET_GCP_CREDENTIALS`) para autenticarse en la API de Spotify y en GCP.
 - El script `spotify_data_pipeline.py` es el encargado del procesamiento de datos y está dentro de la imagen de Docker.
 
- Para conocer más sobre cómo se extraen y procesan los datos dentro del contenedor, se debe revisar la carpeta [`dlt`](../dlt/), ya que allí se encuentra la lógica del script `spotify_data_pipeline.py`.
+Para conocer más sobre cómo se extraen y procesan los datos dentro del contenedor, se debe revisar la carpeta [`dlt`](../dlt/), ya que allí se encuentra la lógica del script `spotify_data_pipeline.py`.
 
 
+### Flow `spotify-tracks-dbt-daily.yaml`
+
+#### **Descripción:**
+Este flujo ejecuta un modelo de transformación utilizando dbt para transformar los datos previamente cargados a BigQuery desde la API de Spotify. Utiliza el contenedor oficial `ghcr.io/kestra-io/dbt-bigquery`.
+
+#### **Propósito:**
+- Clonar el repositorio con los modelos de dbt.
+- Construir todos los modelos de transformación de datos (`dbt build`) ubicados en el directorio `dbt/musics_data_modeling`.
+- Cargar los modelos finales a BigQuery dentro del dataset configurado.
+
+#### **Frecuencia de ejecución:**
+- Este flujo se ejecuta automáticamente todos los días a las 8:00 AM y 8:00 PM UTC-3 (`cron: "0 8,20 * * *"`).
+- En caso de fallo, Kestra intentará reintentar la ejecución hasta 3 veces, con un intervalo de espera de 5 minutos entre cada intento (`retry.maxAttempt: 3`, `retry.delay: PT5M`).
+
+#### **Funcionamiento del código:**
+- Se clona el repositorio `spotify-dwh-insights` en su rama principal.
+- Luego se ejecuta `dbt debug`, `dbt deps` y `dbt build` apuntando al proyecto `musics_data_modeling`.
+- Se usan secretos para las credenciales GCP (`GCP_CREDENTIALS`, `PROJECT_ID`) y valores almacenados en variables Kestra (`DATASET_NAME_DBT`, `LOCATION`).

@@ -1,0 +1,34 @@
+name: CI-CD-Deploy-Kestra-Instance
+on:
+  pull_request:
+    branches:
+      - 'main'
+    paths:
+      - 'kestra/docker-compose.yaml'
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout the repository
+        uses: actions/checkout@v4
+
+      - name: Set up SSH key for GCP
+        uses: google-github-actions/setup-gcloud@v2
+        with:
+          project_id: ${{secrets.GCP_PROJECT_ID}}
+          credentials: ${{secrets.GCP_CREDENTIALS_JSON}}
+
+      - name: Copy docker-compose.yaml to GCP instance
+        run: |
+          gcloud compute scp ./docker-compose.yaml ${{secrets.GCP_INSTANCE_NAME}}:/opt/kestra/docker-compose.yaml --zone ${{secrets.GCP_ZONE}} --project ${{secrets.GCP_PROJECT_ID}}
+
+      - name: Restart Docker Compose on GCP instance
+        run: |
+          gcloud compute ssh ${{secrets.GCP_INSTANCE_NAME}} --zone ${{secrets.GCP_ZONE}} --project ${{secrets.GCP_PROJECT_ID}} --command "
+            cd /opt/kestra &&
+            docker-compose down &&
+            docker-compose pull &&
+            docker-compose up -d
+          "
