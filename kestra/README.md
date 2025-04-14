@@ -16,9 +16,17 @@ mkdir flows
 Es necesario establecer las siguientes variables de entorno para la conexión con la base de datos PostgreSQL utilizada por Kestra. Asegúrate de reemplazar los valores de las variables por aquellos que deseas utilizar en tu entorno.
 
 ```bash
+# ⚠️ Usa nombres reales y evita valores por defecto en producción
+# ⚠️ Nunca dejes estos valores en texto plano en archivos versionados
+
+# PostgreSQL Configuration
 export POSTGRES_DB="<nombre_de_tu_base_de_datos>"
 export POSTGRES_USER="<usuario_de_postgresql>"
 export POSTGRES_PASSWORD="<contraseña_de_postgresql>"
+
+# Kestra Admin Credentials
+export KESTRA_USER="<usuario_debe_ser_correo_valido>"
+export KESTRA_PASSWORD="<contraseña_de_kestra>"
 ```
 
 Puedes agregar estas variables a tu archivo `~/.bashrc` o ejecutarlas directamente en tu terminal.
@@ -29,6 +37,8 @@ Para verificar que las variables de entorno se han configurado correctamente, pu
 echo $POSTGRES_DB
 echo $POSTGRES_USER
 echo $POSTGRES_PASSWORD
+echo $KESTRA_USER
+echo $KESTRA_PASSWORD
 ```
 
 ### 3. Agregar secrets de manera manual con codificación en Base64
