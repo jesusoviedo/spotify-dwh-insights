@@ -162,3 +162,28 @@ Este flujo ejecuta un modelo de transformación utilizando dbt para transformar 
 - Se clona el repositorio `spotify-dwh-insights` en su rama principal.
 - Luego se ejecuta `dbt debug`, `dbt deps` y `dbt build` apuntando al proyecto `musics_data_modeling`.
 - Se usan secretos para las credenciales GCP (`GCP_CREDENTIALS`, `PROJECT_ID`) y valores almacenados en variables Kestra (`DATASET_NAME_DBT`, `LOCATION`).
+
+
+### Flow `init-prod-kv.yaml`
+
+#### **Descripción:**
+Este flujo de inicialización configura el almacenamiento de claves y valores (KV Store) en Kestra para el proyecto Spotify DWH Insights. Define valores clave necesarios para la ejecución de otros flujos, como nombres de datasets, buckets y ubicación en GCP.
+
+#### **Propósito:**
+- Configurar las variables globales necesarias para el resto de los flujos del proyecto.
+- Centralizar la gestión de parámetros como el bucket de GCS, nombres de datasets de BigQuery y la región de GCP.
+- Asegurar que otros flujos puedan reutilizar esta información sin definirla explícitamente.
+
+#### **Claves configuradas:**
+- `LOCATION`: Región de GCP (por ejemplo, US).
+- `BUCKET_NAME`: Nombre del bucket en Google Cloud Storage donde se almacenan los datos.
+- `DATASET_NAME`: Dataset de BigQuery donde se carga la información cruda desde la API de Spotify.
+- `DATASET_NAME_DBT`: Dataset de BigQuery donde se almacenan los modelos finales generados con dbt.
+
+#### **Frecuencia de ejecución:**
+- Este flujo se ejecuta automáticamente cada hora (`cron: "0 * * * *"`) en la zona horaria `America/Asuncion`.
+
+#### **Funcionamiento del código:**
+- Cada tarea utiliza el plugin `io.kestra.plugin.core.kv.Set` para definir una clave de configuración.
+- Las claves se almacenan en el namespace `spotify-dwh-insights`, que luego es utilizado por otros flujos como `ingestion_spotify-api-tracks-bigquery-daily.yaml` y `spotify-tracks-dbt-daily.yaml`.
+- Esto permite desacoplar la configuración del código, facilitando la reutilización y mantenimiento del pipeline.
