@@ -16,7 +16,7 @@ services:
   kestra-spotify-dwh:
     image: kestra/kestra:latest
     pull_policy: always
-    # Our base image runs without root, but the Docker Compose implementation needs root to access the Docker socket
+    # Our base image runs without root, but 
     # To run Kestra in a rootless mode in production, see: https://kestra.io/docs/installation/podman-compose
     user: "root"
     command: server standalone
