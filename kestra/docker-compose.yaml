@@ -16,8 +16,7 @@ services:
   kestra-spotify-dwh:
     image: kestra/kestra:latest
     pull_policy: always
-    # Our base image runs without root, but 
-    # To run Kestra in a rootless mode in production, see: https://kestra.io/docs/installation/podman-compose
+    # To run Kestra in a rootless mode in production, see: https://kestra.io/docs/installation/podman-compose 12>05
     user: "root"
     command: server standalone
     volumes:
