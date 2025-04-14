@@ -26,6 +26,19 @@ jobs:
           echo "SECRET_PROJECT_ID=${{secrets.SECRET_PROJECT_ID_BASE64}}" >> kestra/.env
           echo "SECRET_GCP_CREDENTIALS=${{secrets.SECRET_GCP_CREDENTIALS_BASE64}}" >> kestra/.env
 
+      - name: Show redacted env for debug
+        run: |
+          grep -E "KESTRA_USER|KESTRA_PASSWORD" kestra/.env | sed 's/=.*/=***REDACTED***/'
+          grep -E "POSTGRES_DB|POSTGRES_USER|POSTGRES_PASSWORD" kestra/.env | sed 's/=.*/=***REDACTED***/'
+          grep -E "SECRET_CLIENTE_ID|SECRET_CLIENTE_SECRET" kestra/.env | sed 's/=.*/=***REDACTED***/'
+          grep -E "SECRET_GCP_CREDENTIALS|SECRET_PROJECT_ID" kestra/.env | sed 's/=.*/=***REDACTED***/'
+
+      - name: Fail if required env vars are missing
+        run: |
+          for VAR in KESTRA_USER KESTRA_PASSWORD POSTGRES_DB POSTGRES_USER POSTGRES_PASSWORD SECRET_CLIENTE_ID SECRET_CLIENTE_SECRET SECRET_PROJECT_ID SECRET_GCP_CREDENTIALS; do
+            grep -q "^$VAR=" kestra/.env || (echo "$VAR is missing!" && exit 1)
+          done
+        
       - name: Validate docker-compose config
         run: docker compose --env-file kestra/.env -f kestra/docker-compose.yaml config
 
@@ -49,10 +62,15 @@ jobs:
       - name: Restart Docker Compose on GCP instance
         run: |
           gcloud compute ssh ${{secrets.GCP_INSTANCE_NAME}} --zone ${{secrets.GCP_ZONE}} --project ${{secrets.GCP_PROJECT_ID}} --command "
-            cd /opt/kestra &&
-            sudo docker-compose down &&
-            sudo docker-compose pull &&
-            sudo docker-compose up -d
+            cd /opt/kestra
+
+            #set -a
+            #source .env
+            #set +a
+
+            sudo docker-compose down --env-file kestra/.env 
+            sudo docker-compose pull --env-file kestra/.env
+            sudo docker-compose up --env-file kestra/.env -d
           "
 
 
