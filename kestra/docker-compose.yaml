@@ -16,9 +16,7 @@ services:
   kestra-spotify-dwh:
     image: kestra/kestra:latest
     pull_policy: always
-    # Note that this setup with a root user is intended for development purpose.
-    # Our base image runs without root, but the Docker Compose implementation needs root to access the Docker socket
-    # To run Kestra in a rootless mode in production, see: https://kestra.io/docs/installation/podman-compose
+    # 13 36
     user: "root"
     command: server standalone
     volumes:
@@ -60,7 +58,7 @@ services:
                 values:
                   volume-enabled: true
           url: http://localhost:8080/
-          tutorialFlows:
+          tutorial:
             enabled:false
         micronaut:
           io:
