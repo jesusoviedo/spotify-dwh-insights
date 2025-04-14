@@ -27,7 +27,7 @@ jobs:
       - name: Copy docker-compose.yaml to GCP instance
         run: |
           gcloud compute scp ./kestra/docker-compose.yaml ${{secrets.GCP_INSTANCE_NAME}}:/home/runner/docker-compose.yaml --zone ${{secrets.GCP_ZONE}} --project ${{secrets.GCP_PROJECT_ID}}
-          gcloud compute ssh ${{secrets.GCP_INSTANCE_NAME}} --zone ${{secrets.GCP_ZONE}} --project ${{secrets.GCP_PROJECT_ID}} --command "sudo mv /home/docker-compose.yaml /opt/kestra/docker-compose.yaml"
+          gcloud compute ssh ${{secrets.GCP_INSTANCE_NAME}} --zone ${{secrets.GCP_ZONE}} --project ${{secrets.GCP_PROJECT_ID}} --command "sudo mv /home/runner/docker-compose.yaml /opt/kestra/docker-compose.yaml"
 
       - name: Restart Docker Compose on GCP instance
         run: |
