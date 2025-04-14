@@ -1,0 +1,58 @@
+name: CI-CD-Deploy-Kestra-Instance
+on:
+  pull_request:
+    branches:
+      - 'main'
+    paths:
+      - 'kestra/docker-compose.yaml'
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout the repository
+        uses: actions/checkout@v4
+
+      - name: Create file .env
+        run: |
+          echo "KESTRA_USER=${{secrets.KESTRA_USER}}" >> kestra/.env
+          echo "KESTRA_PASSWORD=${{secrets.KESTRA_PASSWORD}}" >> kestra/.env
+          echo "POSTGRES_DB=${{secrets.POSTGRES_DB}}" >> kestra/.env
+          echo "POSTGRES_USER=${{secrets.POSTGRES_USER}}" >> kestra/.env
+          echo "POSTGRES_PASSWORD=${{secrets.POSTGRES_PASSWORD}}" >> kestra/.env
+          echo "SECRET_CLIENTE_ID=${{secrets.SECRET_CLIENTE_ID_BASE64}}" >> kestra/.env
+          echo "SECRET_CLIENTE_SECRET=${{secrets.SECRET_CLIENTE_SECRET_BASE64}}" >> kestra/.env
+          echo "SECRET_PROJECT_ID=${{secrets.SECRET_PROJECT_ID_BASE64}}" >> kestra/.env
+          echo "SECRET_GCP_CREDENTIALS=${{secrets.SECRET_GCP_CREDENTIALS_BASE64}}" >> kestra/.env
+
+      - name: Validate docker-compose config
+        run: docker compose --env-file kestra/.env -f kestra/docker-compose.yaml config
+
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: ${{ secrets.GCP_CREDENTIALS_JSON }}
+
+      - name: Set up SSH key for GCP
+        uses: google-github-actions/setup-gcloud@v2
+        with:
+          project_id: ${{secrets.GCP_PROJECT_ID}}
+      
+      - name: Copy docker-compose.yaml to GCP instance
+        run: |
+          gcloud compute scp ./kestra/docker-compose.yaml ${{secrets.GCP_INSTANCE_NAME}}:/home/runner/docker-compose.yaml --zone ${{secrets.GCP_ZONE}} --project ${{secrets.GCP_PROJECT_ID}}
+          gcloud compute scp ./kestra/.env ${{secrets.GCP_INSTANCE_NAME}}:/home/runner/.env --zone ${{secrets.GCP_ZONE}} --project ${{secrets.GCP_PROJECT_ID}}
+          gcloud compute ssh ${{secrets.GCP_INSTANCE_NAME}} --zone ${{secrets.GCP_ZONE}} --project ${{secrets.GCP_PROJECT_ID}} --command "sudo mv /home/runner/docker-compose.yaml /opt/kestra/docker-compose.yaml"
+          gcloud compute ssh ${{secrets.GCP_INSTANCE_NAME}} --zone ${{secrets.GCP_ZONE}} --project ${{secrets.GCP_PROJECT_ID}} --command "sudo mv /home/runner/.env /opt/kestra/.env"
+          
+      - name: Restart Docker Compose on GCP instance
+        run: |
+          gcloud compute ssh ${{secrets.GCP_INSTANCE_NAME}} --zone ${{secrets.GCP_ZONE}} --project ${{secrets.GCP_PROJECT_ID}} --command "
+            cd /opt/kestra &&
+            sudo docker-compose down &&
+            sudo docker-compose pull &&
+            sudo docker-compose up -d
+          "
+
+
