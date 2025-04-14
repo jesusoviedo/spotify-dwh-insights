@@ -30,11 +30,33 @@ jobs:
       - name: Checkout the repository
         uses: actions/checkout@v4
 
-      - name: Deploy spotify-dwh-insights flows
+      - name: Deploy spotify-dwh-insights.prod flows
         uses: kestra-io/deploy-action@master
         with:
-          namespace: spotify-dwh-insights
-          directory: ./kestra/flows
+          namespace: spotify-dwh-insights.prod
+          directory: ./kestra/flows/spotify-dwh-insights/prod
+          resource: flow
+          server: http://${{secrets.KESTRA_HOSTNAME}}:8080
+          user: ${{secrets.KESTRA_USER}}
+          password: ${{secrets.KESTRA_PASSWORD}}
+          delete: false
+
+      - name: Deploy spotify-dwh-insights.ingestion flows
+        uses: kestra-io/deploy-action@master
+        with:
+          namespace: spotify-dwh-insights.ingestion
+          directory: ./kestra/flows/spotify-dwh-insights/ingestion
+          resource: flow
+          server: http://${{secrets.KESTRA_HOSTNAME}}:8080
+          user: ${{secrets.KESTRA_USER}}
+          password: ${{secrets.KESTRA_PASSWORD}}
+          delete: false
+
+      - name: Deploy spotify-dwh-insights.transformation flows
+        uses: kestra-io/deploy-action@master
+        with:
+          namespace: spotify-dwh-insights.transformation
+          directory: ./kestra/flows/spotify-dwh-insights/transformation
           resource: flow
           server: http://${{secrets.KESTRA_HOSTNAME}}:8080
           user: ${{secrets.KESTRA_USER}}
