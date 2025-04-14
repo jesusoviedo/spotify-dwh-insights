@@ -19,7 +19,7 @@ jobs:
         with:
           directory: ./kestra/flows
           resource: flow
-          server: ${{secrets.KESTRA_HOSTNAME}}
+          server: http://${{secrets.KESTRA_HOSTNAME}}
           user: ${{secrets.KESTRA_USER}}
           password: ${{secrets.KESTRA_PASSWORD}}
 
@@ -36,7 +36,7 @@ jobs:
           namespace: spotify-dwh-insights
           directory: ./kestra/flows
           resource: flow
-          server: ${{secrets.KESTRA_HOSTNAME}}
+          server: http://${{secrets.KESTRA_HOSTNAME}}
           user: ${{secrets.KESTRA_USER}}
           password: ${{secrets.KESTRA_PASSWORD}}
           delete: false
