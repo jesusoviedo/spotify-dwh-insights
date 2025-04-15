@@ -54,19 +54,18 @@ jobs:
           echo "TF_VAR_secret_gcp_credentials=${{ secrets.SECRET_GCP_CREDENTIALS_BASE64 }}" >> .env
           echo "TF_VAR_kestra_user=${{ secrets.KESTRA_USER }}" >> .env
           echo "TF_VAR_kestra_password=${{ secrets.KESTRA_PASSWORD }}" >> .env
-          echo "GOOGLE_CREDENTIALS=/terraform/gcp-key.json" >> .env
-          echo "GOOGLE_APPLICATION_CREDENTIALS=$PWD/gcp-key.json"
+          echo "GOOGLE_APPLICATION_CREDENTIALS=$PWD/gcp-key.json" >> .env
 
       - name: Show redacted env for debug
         run: |
           grep -E "TF_VAR_postgres_db|TF_VAR_postgres_user|TF_VAR_postgres_password" .env | sed 's/=.*/=***REDACTED***/'
           grep -E "TF_VAR_secret_cliente_id|TF_VAR_secret_cliente_secret" .env | sed 's/=.*/=***REDACTED***/'
           grep -E "TF_VAR_secret_project_id|TF_VAR_secret_gcp_credentials" .env | sed 's/=.*/=***REDACTED***/'
-          grep -E "TF_VAR_kestra_user|TF_VAR_kestra_password|GOOGLE_CREDENTIALS" .env | sed 's/=.*/=***REDACTED***/'
+          grep -E "TF_VAR_kestra_user|TF_VAR_kestra_password|GOOGLE_APPLICATION_CREDENTIALS" .env | sed 's/=.*/=***REDACTED***/'
 
       - name: Check required env vars
         run: |
-          for VAR in TF_VAR_kestra_user TF_VAR_kestra_password TF_VAR_postgres_db TF_VAR_postgres_user TF_VAR_postgres_password TF_VAR_secret_cliente_id TF_VAR_secret_cliente_secret TF_VAR_secret_project_id TF_VAR_secret_gcp_credentials GOOGLE_CREDENTIALS; do
+          for VAR in TF_VAR_kestra_user TF_VAR_kestra_password TF_VAR_postgres_db TF_VAR_postgres_user TF_VAR_postgres_password TF_VAR_secret_cliente_id TF_VAR_secret_cliente_secret TF_VAR_secret_project_id TF_VAR_secret_gcp_credentials GOOGLE_APPLICATION_CREDENTIALS; do
             grep -q "^$VAR=" .env || (echo "$VAR is missing!" && exit 1)
           done
 
