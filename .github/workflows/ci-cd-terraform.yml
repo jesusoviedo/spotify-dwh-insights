@@ -75,6 +75,11 @@ jobs:
           source .env
           set +o allexport
 
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: '${{ secrets.GCP_CREDENTIALS_JSON }}'
+
       - name: Set up Terraform
         uses: hashicorp/setup-terraform@v3
         with:
