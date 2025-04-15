@@ -23,46 +23,46 @@ jobs:
 
       - name: Create gcp-key
         run: |
-          echo "${{ secrets.GCP_CREDENTIALS_JSON }}" > terraform/gcp-key.json
+          echo "${{ secrets.GCP_CREDENTIALS_JSON }}" > gcp-key.json
 
       - name: Show redacted gcp-key for debug
         run: |
-          grep -E "type|project_id|private_key_id" terraform/gcp-key.json | sed 's/:.*/=***REDACTED***/'
-          grep -E "private_key|client_email|client_id" terraform/gcp-key.json | sed 's/:.*/=***REDACTED***/'
-          grep -E "auth_uri|token_uri|auth_provider_x509_cert_url" terraform/gcp-key.json | sed 's/:.*/=***REDACTED***/'
-          grep -E "client_x509_cert_url|universe_domain" terraform/gcp-key.json | sed 's/:.*/=***REDACTED***/'
+          grep -E "type|project_id|private_key_id" gcp-key.json | sed 's/:.*/=***REDACTED***/'
+          grep -E "private_key|client_email|client_id" gcp-key.json | sed 's/:.*/=***REDACTED***/'
+          grep -E "auth_uri|token_uri|auth_provider_x509_cert_url" gcp-key.json | sed 's/:.*/=***REDACTED***/'
+          grep -E "client_x509_cert_url|universe_domain" gcp-key.json | sed 's/:.*/=***REDACTED***/'
 
       - name: Check required env vars
         run: |
           for VAR in type project_id private_key_id private_key client_email client_id auth_uri token_uri auth_provider_x509_cert_url client_x509_cert_url universe_domain; do
-            grep -q "^$VAR=" terraform/gcp-key.json || (echo "$VAR is missing!" && exit 1)
+            grep -q "^$VAR=" gcp-key.json || (echo "$VAR is missing!" && exit 1)
           done
-          cat terraform/gcp-key.json | jq empty
+          cat gcp-key.json | jq empty
 
       - name: Create file env
         run: |
-          echo "TF_VAR_postgres_db=${{ secrets.POSTGRES_DB }}" >> terraform/.env
-          echo "TF_VAR_postgres_user=${{ secrets.POSTGRES_USER }}" >> terraform/.env
-          echo "TF_VAR_postgres_password=${{ secrets.POSTGRES_PASSWORD }}" >> terraform/.env
-          echo "TF_VAR_secret_cliente_id=${{ secrets.SECRET_CLIENTE_ID_BASE64 }}" >> terraform/.env
-          echo "TF_VAR_secret_cliente_secret=${{ secrets.SECRET_CLIENTE_SECRET_BASE64 }}" >> terraform/.env
-          echo "TF_VAR_secret_project_id=${{ secrets.SECRET_PROJECT_ID_BASE64 }}" >> terraform/.env
-          echo "TF_VAR_secret_gcp_credentials=${{ secrets.SECRET_GCP_CREDENTIALS_BASE64 }}" >> terraform/.env
-          echo "TF_VAR_kestra_user=${{ secrets.KESTRA_USER }}" >> terraform/.env
-          echo "TF_VAR_kestra_password=${{ secrets.KESTRA_PASSWORD }}" >> terraform/.env
-          echo "GOOGLE_CREDENTIALS=terraform/gcp-key.json" >> terraform/.env
+          echo "TF_VAR_postgres_db=${{ secrets.POSTGRES_DB }}" >> .env
+          echo "TF_VAR_postgres_user=${{ secrets.POSTGRES_USER }}" >> .env
+          echo "TF_VAR_postgres_password=${{ secrets.POSTGRES_PASSWORD }}" >> .env
+          echo "TF_VAR_secret_cliente_id=${{ secrets.SECRET_CLIENTE_ID_BASE64 }}" >> .env
+          echo "TF_VAR_secret_cliente_secret=${{ secrets.SECRET_CLIENTE_SECRET_BASE64 }}" >> .env
+          echo "TF_VAR_secret_project_id=${{ secrets.SECRET_PROJECT_ID_BASE64 }}" >> .env
+          echo "TF_VAR_secret_gcp_credentials=${{ secrets.SECRET_GCP_CREDENTIALS_BASE64 }}" >> .env
+          echo "TF_VAR_kestra_user=${{ secrets.KESTRA_USER }}" >> .env
+          echo "TF_VAR_kestra_password=${{ secrets.KESTRA_PASSWORD }}" >> .env
+          echo "GOOGLE_CREDENTIALS=/terraform/gcp-key.json" >> .env
 
       - name: Show redacted env for debug
         run: |
-          grep -E "TF_VAR_postgres_db|TF_VAR_postgres_user|TF_VAR_postgres_password" terraform/.env | sed 's/=.*/=***REDACTED***/'
-          grep -E "TF_VAR_secret_cliente_id|TF_VAR_secret_cliente_secret" terraform/.env | sed 's/=.*/=***REDACTED***/'
-          grep -E "TF_VAR_secret_project_id|TF_VAR_secret_gcp_credentials" terraform/.env | sed 's/=.*/=***REDACTED***/'
-          grep -E "TF_VAR_kestra_user|TF_VAR_kestra_password|GOOGLE_CREDENTIALS" terraform/.env | sed 's/=.*/=***REDACTED***/'
+          grep -E "TF_VAR_postgres_db|TF_VAR_postgres_user|TF_VAR_postgres_password" .env | sed 's/=.*/=***REDACTED***/'
+          grep -E "TF_VAR_secret_cliente_id|TF_VAR_secret_cliente_secret" .env | sed 's/=.*/=***REDACTED***/'
+          grep -E "TF_VAR_secret_project_id|TF_VAR_secret_gcp_credentials" .env | sed 's/=.*/=***REDACTED***/'
+          grep -E "TF_VAR_kestra_user|TF_VAR_kestra_password|GOOGLE_CREDENTIALS" .env | sed 's/=.*/=***REDACTED***/'
 
       - name: Check required env vars
         run: |
           for VAR in TF_VAR_kestra_user TF_VAR_kestra_password TF_VAR_postgres_db TF_VAR_postgres_user TF_VAR_postgres_password TF_VAR_secret_cliente_id TF_VAR_secret_cliente_secret TF_VAR_secret_project_id TF_VAR_secret_gcp_credentials GOOGLE_CREDENTIALS; do
-            grep -q "^$VAR=" terraform/.env || (echo "$VAR is missing!" && exit 1)
+            grep -q "^$VAR=" .env || (echo "$VAR is missing!" && exit 1)
           done
 
       - name: Set env vars
