@@ -56,11 +56,18 @@ jobs:
       - name: Terraform Apply
         run: terraform apply -auto-approve tfplan
 
+      - name: Get Kestra instance IP
+        run: |
+          IP=$(gcloud compute instances describe kestra-instance \
+            --zone=us-east1-b \
+            --format='get(networkInterfaces[0].accessConfigs[0].natIP)')
+          echo "KESRA_INSTANCE_IP=$IP" >> "$GITHUB_ENV"
+
       - name: Run init-prod-kv flow via Kestra API
         run: |
           echo "Esperando a que Kestra esté saludable..."
           for i in {1..100}; do
-            if curl -s -u "${{ secrets.KESTRA_USER }}:${{ secrets.KESTRA_PASSWORD }}" http://${{ secrets.KESTRA_HOSTNAME }}:8081/health | grep '"status":"UP"' > /dev/null; then
+            if curl -s -u "${{ secrets.KESTRA_USER }}:${{ secrets.KESTRA_PASSWORD }}" http://$KESRA_INSTANCE_IP:8081/health | grep '"status":"UP"' > /dev/null; then
               echo "Kestra está listo."
               break
             else
@@ -71,11 +78,11 @@ jobs:
 
           echo "Verificando si el flujo init-prod-kv existe..."
           status_code=$(curl -s -o /dev/null -w "%{http_code}" -u "${{ secrets.KESTRA_USER }}:${{ secrets.KESTRA_PASSWORD }}" \
-            http://${{ secrets.KESTRA_HOSTNAME }}:8080/api/v1/flows/spotify-dwh-insights.prod/init-prod-kv)
+            http://$KESRA_INSTANCE_IP:8080/api/v1/flows/spotify-dwh-insights.prod/init-prod-kv)
 
           if [ "$status_code" -eq 200 ]; then
             echo "Flujo encontrado. Ejecutando init-prod-kv..."
-            curl -v -X POST "http://${{ secrets.KESTRA_HOSTNAME }}:8080/api/v1/executions/spotify-dwh-insights.prod/init-prod-kv" \
+            curl -v -X POST "http://$KESRA_INSTANCE_IP:8080/api/v1/executions/spotify-dwh-insights.prod/init-prod-kv" \
               -u "${{ secrets.KESTRA_USER }}:${{ secrets.KESTRA_PASSWORD }}" \
               -H "Content-Type: multipart/form-data"
           else
