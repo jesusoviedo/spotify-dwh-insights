@@ -72,7 +72,7 @@ jobs:
       - name: Set env vars
         run: |
           set -o allexport
-          source terraform/.env
+          source .env
           set +o allexport
 
       - name: Set up Terraform
