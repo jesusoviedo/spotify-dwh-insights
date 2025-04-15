@@ -44,9 +44,11 @@ Se ejecuta cuando se **fusiona un pull request a `main`** que modifica archivos 
 
 Pasos principales:
 
-- Crea el archivo de credenciales de GCP (`gcp-key.json`).
-- Genera el archivo `.env` con variables requeridas por los recursos.
-- Valida, planifica y aplica los cambios de infraestructura con Terraform.
+- Autentica en Google Cloud utilizando el secreto `GCP_CREDENTIALS_JSON`.
+- Establece variables de entorno necesarias para los recursos de Terraform (usando secretos de GitHub).
+- Inicializa, valida, planifica y aplica automáticamente los cambios de infraestructura con Terraform.
+- Espera que la instancia esté saludable.
+- Lanza el flujo `init-prod-kv` para inicializar claves necesarias en el KV Store.
 
 ---
 
