@@ -17,68 +17,27 @@ jobs:
     defaults:
       run:
         working-directory: terraform
+    env:
+      TF_VAR_kestra_user: ${{ secrets.KESTRA_USER }}
+      TF_VAR_kestra_password: ${{ secrets.KESTRA_PASSWORD }}
+      TF_VAR_postgres_db: ${{ secrets.POSTGRES_DB }}
+      TF_VAR_postgres_user: ${{ secrets.POSTGRES_USER }}
+      TF_VAR_postgres_password: ${{ secrets.POSTGRES_PASSWORD }}
+      TF_VAR_secret_cliente_id: ${{ secrets.SECRET_CLIENTE_ID_BASE64 }}
+      TF_VAR_secret_cliente_secret: ${{ secrets.SECRET_CLIENTE_SECRET_BASE64 }}
+      TF_VAR_secret_project_id: ${{ secrets.SECRET_PROJECT_ID_BASE64 }}
+      TF_VAR_secret_gcp_credentials: ${{ secrets.SECRET_GCP_CREDENTIALS_BASE64 }}
     steps:
       - name: Checkout the repository
         uses: actions/checkout@v4
-
-      - name: Create gcp-key
-        run: |
-          echo "${{ secrets.SECRET_GCP_CREDENTIALS_BASE64 }}" | base64 -d > gcp-key.json
-      
-      - name: Show redacted gcp-key for debug
-        run: |
-          grep -E "type|project_id|private_key_id" gcp-key.json | sed 's/:.*/=***REDACTED***/'
-          grep -E "private_key|client_email|client_id" gcp-key.json | sed 's/:.*/=***REDACTED***/'
-          grep -E "auth_uri|token_uri|auth_provider_x509_cert_url" gcp-key.json | sed 's/:.*/=***REDACTED***/'
-          grep -E "client_x509_cert_url|universe_domain" gcp-key.json | sed 's/:.*/=***REDACTED***/'
-
-      - name: Check required JSON keys
-        run: |
-          REQUIRED_KEYS=(type project_id private_key_id private_key client_email client_id auth_uri token_uri auth_provider_x509_cert_url client_x509_cert_url universe_domain)
-          for KEY in "${REQUIRED_KEYS[@]}"; do
-            VALUE=$(jq -r --arg key "$KEY" '.[$key] // empty' gcp-key.json)
-            if [[ -z "$VALUE" ]]; then
-              echo "$KEY is missing!"
-              exit 1
-            fi
-          done
-        
-      - name: Create file env
-        run: |
-          echo "TF_VAR_postgres_db=${{ secrets.POSTGRES_DB }}" >> .env
-          echo "TF_VAR_postgres_user=${{ secrets.POSTGRES_USER }}" >> .env
-          echo "TF_VAR_postgres_password=${{ secrets.POSTGRES_PASSWORD }}" >> .env
-          echo "TF_VAR_secret_cliente_id=${{ secrets.SECRET_CLIENTE_ID_BASE64 }}" >> .env
-          echo "TF_VAR_secret_cliente_secret=${{ secrets.SECRET_CLIENTE_SECRET_BASE64 }}" >> .env
-          echo "TF_VAR_secret_project_id=${{ secrets.SECRET_PROJECT_ID_BASE64 }}" >> .env
-          echo "TF_VAR_secret_gcp_credentials=${{ secrets.SECRET_GCP_CREDENTIALS_BASE64 }}" >> .env
-          echo "TF_VAR_kestra_user=${{ secrets.KESTRA_USER }}" >> .env
-          echo "TF_VAR_kestra_password=${{ secrets.KESTRA_PASSWORD }}" >> .env
-          echo "GOOGLE_APPLICATION_CREDENTIALS=$PWD/gcp-key.json" >> .env
-
-      - name: Show redacted env for debug
-        run: |
-          grep -E "TF_VAR_postgres_db|TF_VAR_postgres_user|TF_VAR_postgres_password" .env | sed 's/=.*/=***REDACTED***/'
-          grep -E "TF_VAR_secret_cliente_id|TF_VAR_secret_cliente_secret" .env | sed 's/=.*/=***REDACTED***/'
-          grep -E "TF_VAR_secret_project_id|TF_VAR_secret_gcp_credentials" .env | sed 's/=.*/=***REDACTED***/'
-          grep -E "TF_VAR_kestra_user|TF_VAR_kestra_password|GOOGLE_APPLICATION_CREDENTIALS" .env | sed 's/=.*/=***REDACTED***/'
-
-      - name: Check required env vars
-        run: |
-          for VAR in TF_VAR_kestra_user TF_VAR_kestra_password TF_VAR_postgres_db TF_VAR_postgres_user TF_VAR_postgres_password TF_VAR_secret_cliente_id TF_VAR_secret_cliente_secret TF_VAR_secret_project_id TF_VAR_secret_gcp_credentials GOOGLE_APPLICATION_CREDENTIALS; do
-            grep -q "^$VAR=" .env || (echo "$VAR is missing!" && exit 1)
-          done
-
-      - name: Set env vars
-        run: |
-          set -o allexport
-          source .env
-          set +o allexport
 
       - name: Authenticate to Google Cloud
         uses: google-github-actions/auth@v2
         with:
           credentials_json: '${{ secrets.GCP_CREDENTIALS_JSON }}'
+
+      - name: Verify gcloud auth
+        run: gcloud auth list
 
       - name: Set up Terraform
         uses: hashicorp/setup-terraform@v3
