@@ -4,7 +4,7 @@ on:
     types:
       - closed
     branches:
-      - master
+      - main
     paths:
       - 'kestra/docker-compose.yaml'
 
