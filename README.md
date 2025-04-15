@@ -1,5 +1,15 @@
 # Proyecto de Data Engineering con la API de Spotify
 
+
+
+[![Secrets Scan](https://github.com/jesusoviedo/spotify-dwh-insights/actions/workflows/ci-sec-secrets-scan.yml/badge.svg)](https://github.com/jesusoviedo/spotify-dwh-insights/actions/workflows/ci-sec-secrets-scan.yml) [![Deploy Flows](https://github.com/jesusoviedo/spotify-dwh-insights/actions/workflows/ci-cd-deploy-flows.yml/badge.svg)](https://github.com/jesusoviedo/spotify-dwh-insights/actions/workflows/ci-cd-deploy-flows.yml) [![Deploy Instance](https://github.com/jesusoviedo/spotify-dwh-insights/actions/workflows/ci-cd-deploy-instance.yml/badge.svg)](https://github.com/jesusoviedo/spotify-dwh-insights/actions/workflows/ci-cd-deploy-instance.yml) [![Build & Push Docker Image](https://github.com/jesusoviedo/spotify-dwh-insights/actions/workflows/ci-cd-build-deploy-docker-image.yml/badge.svg)](https://github.com/jesusoviedo/spotify-dwh-insights/actions/workflows/ci-cd-build-deploy-docker-image.yml)
+
+----
+
+[![pre-commit](https://img.shields.io/badge/pre--commit-enabled-brightgreen?logo=pre-commit)](https://github.com/pre-commit/pre-commit)
+
+----
+
 Este proyecto de Data Engineering tiene como objetivo extraer información de la API de Spotify sobre los lanzamientos recientes de álbumes, obtener detalles de sus pistas y los datos de los artistas involucrados. 
 
 Luego, estos datos serán almacenados en un Data Lake, procesados para un Data Warehouse y utilizados en un dashboard con visualizaciones clave.
@@ -50,18 +60,19 @@ Luego, estos datos serán almacenados en un Data Lake, procesados para un Data W
 ## 📂 Estructura de carpetas
 ```bash
 📂 spotify-data-engineering  
-│── 📄 .github/workflows/    # Configuración de GitHub Actions 
-│── 📂 data/                 # Archivos de datos de ejemplo 
-│── 📂 dbt/                  # Modelos de transformación para BigQuery  
-│── 📂 dlt/                  # Configuración y scripts de DLT 
-│── 📂 docs/                 # Documentación adicional y archivos README auxiliares
-│── 📂 kestra/               # Flujos de trabajo en Kestra  
-│── 📂 scripts/              # Scripts auxiliares  
-│── 📂 terraform/            # Definiciones de infraestructura en GCP  
-│── 📂 visualizations/       # Dashboards y reportes  
-│── 📄 .gitignore            # Archivos a excluir del repositorio  
-│── 📄 README.md             # Documentación del proyecto  
-│── 📄 LICENSE               # Información sobre la licencia del proyecto 
+│── 📄 .github/workflows        # Configuración de GitHub Actions 
+│── 📂 data/                    # Archivos de datos de ejemplo 
+│── 📂 dbt/                     # Modelos de transformación para BigQuery  
+│── 📂 dlt/                     # Configuración y scripts de DLT 
+│── 📂 docs/                    # Documentación adicional y archivos README auxiliares
+│── 📂 kestra/                  # Flujos de trabajo en Kestra  
+│── 📂 scripts/                 # Scripts auxiliares  
+│── 📂 terraform/               # Definiciones de infraestructura en GCP  
+│── 📂 visualizations/          # Dashboards y reportes  
+│── 📄 .gitignore               # Archivos a excluir del repositorio
+│── 📄 .pre-commit-config.yaml  # Configuración de pre-commit para hooks y linters
+│── 📄 README.md                # Documentación del proyecto  
+│── 📄 LICENSE                  # Información sobre la licencia del proyecto 
 ```
 
 
@@ -147,6 +158,9 @@ Esta carpeta contiene los recursos relacionados con la creación de dashboards i
 ### 🔄 Integración y Despliegue Automático ([`.github/workflows/`](./.github/workflows)`)
 En esta carpeta se almacena la configuración de GitHub Actions para implementar un flujo de CI/CD robusto. Asegura que cada cambio en el código pase por validaciones antes de ser desplegado, permitiendo una entrega continua y segura.
 
+## 🧹 Code Quality
+
+Este proyecto utiliza [pre-commit](https://pre-commit.com/) para ejecutar linters y herramientas de formato de código antes de realizar un commit. Puedes obtener más detalles sobre cómo configurar y usar estas herramientas en el archivo [code_quality.md](./docs/code_quality.md).
 
 ## 🤝 Contribuciones
 Las contribuciones son bienvenidas. Si tienes alguna idea o mejora, no dudes en hacer un fork del repositorio y enviar un pull request. Toda ayuda es apreciada para mejorar el proyecto.

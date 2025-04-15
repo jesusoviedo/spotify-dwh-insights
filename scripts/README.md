@@ -14,6 +14,7 @@ pipenv --python 3.12
 
 ```bash
 pipenv install requests requests-cache pandas pyarrow google-cloud-storage
+pipenv install --dev pre-commit ruff black isort
 ```
 
 ## Script `api_spotify.py`

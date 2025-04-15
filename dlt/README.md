@@ -13,6 +13,7 @@ pipenv --python 3.12
 
 ```bash
 pipenv install requests requests-cache pandas pyarrow google-cloud-storage google-cloud-bigquery-storage dlt[bigquery]
+pipenv install --dev pre-commit ruff black isort
 ```
 
 

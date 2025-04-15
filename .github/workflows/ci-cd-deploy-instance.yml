@@ -1,15 +1,18 @@
-name: CI-CD-Deploy-Kestra-Instance
+name: Deploy Kestra
 on:
   pull_request:
+    types:
+      - closed
     branches:
-      - 'main'
+      - master
     paths:
       - 'kestra/docker-compose.yaml'
 
 jobs:
   deploy:
+    if: github.event.pull_request.merged == true
     runs-on: ubuntu-latest
-
+    name: Deploy Kestra instance
     steps:
       - name: Checkout the repository
         uses: actions/checkout@v4
@@ -92,3 +95,5 @@ jobs:
           else
             echo "Flujo init-prod-kv no encontrado. Saltando ejecución."
           fi
+      - name: Remove .env file for security
+        run: rm -f kestra/.env
