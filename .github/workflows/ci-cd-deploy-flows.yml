@@ -1,13 +1,16 @@
-name: CI-CD-Deploy-Kestra-Flows
+name: Deploy Kestra Flows
 on:
   pull_request:
+    types:
+      - closed
     branches:
-      - 'main'
+      - master
     paths:
       - 'kestra/flows/**'
 
 jobs:
   validate:
+    if: github.event.pull_request.merged == true
     runs-on: ubuntu-latest
     name: Kestra validate flows
     steps:
@@ -24,6 +27,7 @@ jobs:
           password: ${{secrets.KESTRA_PASSWORD}}
 
   prod:
+    if: github.event.pull_request.merged == true
     runs-on: ubuntu-latest
     name: Deploy flows to prod
     needs: validate
@@ -65,6 +69,7 @@ jobs:
           delete: false
   
   run-init-kv:
+    if: github.event.pull_request.merged == true
     runs-on: ubuntu-latest
     name: Run init-prod-kv flow
     needs: prod 
