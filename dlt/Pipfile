@@ -13,6 +13,10 @@ google-cloud-bigquery-storage = "*"
 requests-cache = "*"
 
 [dev-packages]
+pre-commit = "*"
+ruff = "*"
+black = "*"
+isort = "*"
 
 [requires]
 python_version = "3.12"

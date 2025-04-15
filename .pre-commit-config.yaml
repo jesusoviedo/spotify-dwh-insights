@@ -1,0 +1,47 @@
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v5.0.0
+    hooks:
+      - id: check-added-large-files
+      - id: check-case-conflict
+      - id: check-json
+      - id: check-yaml
+      - id: detect-private-key
+      - id: end-of-file-fixer
+
+  #- repo: https://github.com/thoughtworks/talisman
+  #  rev: v1.34.0
+  #  hooks:
+  #    - id: talisman-commit
+  #      name: talisman-commit
+  #      language_version: python3.12
+
+  - repo: https://github.com/pycqa/isort
+    rev: 5.13.2
+    hooks:
+      - id: isort
+        name: isort (python3.12)
+        files: \.(py)$
+        types: [python]
+        language_version: python3.12
+        args: ["--profile", "black"]
+
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.11.5
+    hooks:
+      - id: ruff
+        name: ruff (lint + format)
+        files: \.(py)$
+        types: [python]
+        language_version: python3.12
+        args: []
+
+  - repo: https://github.com/psf/black
+    rev: 25.1.0
+    hooks:
+      - id: black
+        name: black (python3.12)
+        files: \.(py)$
+        types: [python]
+        args: [--line-length=120]
+        language_version: python3.12

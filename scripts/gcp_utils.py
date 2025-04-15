@@ -1,14 +1,15 @@
 import argparse
+
 from google.cloud import storage
 from google.cloud.exceptions import Conflict
 
-tup_tipo_accion = ('gcs-create',)
+tup_tipo_accion = ("gcs-create",)
 
 
 def params():
-    parser = argparse.ArgumentParser(description="Utilidades Google Cloud Platform")    
-    parser.add_argument('action', type=str, choices=[tup_tipo_accion[0]], help='Tipo de accion')
-    parser.add_argument('bucket_name', type=str, help="Nombre del bucket", nargs='?')
+    parser = argparse.ArgumentParser(description="Utilidades Google Cloud Platform")
+    parser.add_argument("action", type=str, choices=[tup_tipo_accion[0]], help="Tipo de accion")
+    parser.add_argument("bucket_name", type=str, help="Nombre del bucket", nargs="?")
 
     args = parser.parse_args()
 
@@ -32,9 +33,9 @@ def create_bucket(bucket_name):
 
 def main():
     args = params()
-    if args.action == tup_tipo_accion[0]:  
+    if args.action == tup_tipo_accion[0]:
         create_bucket(args.bucket_name)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()
