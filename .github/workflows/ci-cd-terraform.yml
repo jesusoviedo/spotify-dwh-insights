@@ -32,13 +32,17 @@ jobs:
           grep -E "auth_uri|token_uri|auth_provider_x509_cert_url" gcp-key.json | sed 's/:.*/=***REDACTED***/'
           grep -E "client_x509_cert_url|universe_domain" gcp-key.json | sed 's/:.*/=***REDACTED***/'
 
-      - name: Check required env vars
+      - name: Check required JSON keys
         run: |
-          for VAR in type project_id private_key_id private_key client_email client_id auth_uri token_uri auth_provider_x509_cert_url client_x509_cert_url universe_domain; do
-            grep -q "^$VAR=" gcp-key.json || (echo "$VAR is missing!" && exit 1)
+          REQUIRED_KEYS=(type project_id private_key_id private_key client_email client_id auth_uri token_uri auth_provider_x509_cert_url client_x509_cert_url universe_domain)
+          for KEY in "${REQUIRED_KEYS[@]}"; do
+            VALUE=$(jq -r --arg key "$KEY" '.[$key] // empty' gcp-key.json)
+            if [[ -z "$VALUE" ]]; then
+              echo "$KEY is missing!"
+              exit 1
+            fi
           done
-          cat gcp-key.json | jq empty
-
+        
       - name: Create file env
         run: |
           echo "TF_VAR_postgres_db=${{ secrets.POSTGRES_DB }}" >> .env
