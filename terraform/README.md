@@ -29,17 +29,17 @@ Antes de ejecutar las sentencias descritas a continuación, asegúrate de crear 
 ### Configuración de las credenciales de Google Cloud
 Primero, establece la variable de entorno con el archivo de credenciales de GCP:
 ```bash
-export GOOGLE_CREDENTIALS="path/to/your/gcs-storage-key.json"
+export GOOGLE_APPLICATION_CREDENTIALS="path/to/your/gcs-storage-key.json"
 ```
 
 Para verificar que la variable de entorno esté configurada correctamente, ejecuta:
 ```bash
-echo $GOOGLE_CREDENTIALS
+echo $GOOGLE_APPLICATION_CREDENTIALS
 ```
 
 
 ### Configuración de variables adicionales
-Además de la variable `GOOGLE_CREDENTIALS`, necesitarás configurar otras variables de entorno para que Terraform funcione correctamente. A continuación, establece las siguientes variables:
+Además de la variable `GOOGLE_APPLICATION_CREDENTIALS`, necesitarás configurar otras variables de entorno para que Terraform funcione correctamente. A continuación, establece las siguientes variables:
 
 ```bash
 export TF_VAR_postgres_db="your_postgres_db"
