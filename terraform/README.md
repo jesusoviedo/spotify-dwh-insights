@@ -26,20 +26,32 @@ Los secretos sensibles como credenciales, claves y contraseñas no se almacenan 
 Antes de ejecutar las sentencias descritas a continuación, asegúrate de crear un bucket en Google Cloud Storage (GCS) para almacenar el archivo de estado de Terraform. Se ha creado un script para facilitar esta tarea; para más detalles, consulta la carpeta [`scripts`](../scripts/).
 
 
-### Configuración de las credenciales de Google Cloud
-Primero, establece la variable de entorno con el archivo de credenciales de GCP:
+### Autenticación en Google Cloud
+Para autenticarte en Google Cloud desde tu máquina local, primero asegurate de tener instalado el [CLI de Google Cloud (`gcloud`)](https://cloud.google.com/sdk/docs/install?hl=es-419).
+
+Una vez instalado, podés iniciar sesión con tu cuenta de Google ejecutando:
 ```bash
-export GOOGLE_APPLICATION_CREDENTIALS="path/to/your/gcs-storage-key.json"
+gcloud auth login
 ```
 
-Para verificar que la variable de entorno esté configurada correctamente, ejecuta:
+Esto abrirá una ventana del navegador para completar el proceso de autenticación. Una vez autenticado, seleccioná el proyecto con el que querés trabajar:
 ```bash
-echo $GOOGLE_APPLICATION_CREDENTIALS
+gcloud config set project YOUR_PROJECT_ID
+```
+
+Verificá que la autenticación se haya realizado correctamente con:
+```bash
+gcloud auth list
+```
+
+Y consultá el proyecto actual con:
+```bash
+gcloud config list project
 ```
 
 
 ### Configuración de variables adicionales
-Además de la variable `GOOGLE_APPLICATION_CREDENTIALS`, necesitarás configurar otras variables de entorno para que Terraform funcione correctamente. A continuación, establece las siguientes variables:
+Además de autenticarte en Google Cloud desde la terminal, necesitarás configurar otras variables de entorno para que Terraform funcione correctamente. A continuación, establece las siguientes variables:
 
 ```bash
 export TF_VAR_postgres_db="your_postgres_db"
