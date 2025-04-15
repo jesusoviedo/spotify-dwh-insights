@@ -4,7 +4,7 @@ resource "google_compute_firewall" "allow_http" {
 
   allow {
     protocol = "tcp"
-    ports    = ["8080"]
+    ports    = ["8080", "8081", "9090"]
   }
 
   target_tags   = ["kestra"]
