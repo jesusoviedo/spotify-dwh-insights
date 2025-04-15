@@ -23,8 +23,8 @@ jobs:
 
       - name: Create gcp-key
         run: |
-          echo "${{ secrets.GCP_CREDENTIALS_JSON }}" > gcp-key.json
-
+          echo "${{ secrets.SECRET_GCP_CREDENTIALS_BASE64 }}" | base64 -d > gcp-key.json
+      
       - name: Show redacted gcp-key for debug
         run: |
           grep -E "type|project_id|private_key_id" gcp-key.json | sed 's/:.*/=***REDACTED***/'
