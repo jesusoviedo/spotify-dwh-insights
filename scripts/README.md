@@ -13,7 +13,7 @@ pipenv --python 3.12
 ```
 
 ```bash
-pipenv install requests requests-cache pandas pyarrow google-cloud-storage
+pipenv install requests requests-cache pandas pyarrow google-cloud-storage diagrams
 pipenv install --dev pre-commit ruff black isort
 ```
 
@@ -87,3 +87,21 @@ python gcp_utils.py gcs-create <nombre_bucket>
 ```
 
 Asegúrate de reemplazar `<nombre_del_bucket>` con el nombre deseado para el bucket de Google Cloud Storage.
+
+
+
+## Script `architecture_diagram.py`
+
+El script `architecture_diagram.py` genera un diagrama visual de la arquitectura del proyecto utilizando la librería Diagrams. Este diagrama representa los componentes clave involucrados en el flujo de datos, desde la extracción de información de Spotify hasta su procesamiento, almacenamiento y visualización en Google Cloud Platform (GCP).
+
+Antes de ejecutar este script, asegúrate de haber instalado la librería `diagrams`, junto con sus dependencias. Además, asegúrate de tener los íconos personalizados en el directorio `resources` (por ejemplo: `spotify.png`, `dbt.png`, `kestra.png`, `gcp.png`, `looker.png`, `cron.png`).
+
+
+### Ejecución del script
+
+```bash
+pipenv shell
+python architecture_diagram.py
+```
+
+La imagen generada se guardará en el directorio `resources` con el nombre `/architecture_diagram.png`.

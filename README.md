@@ -30,6 +30,9 @@ Luego, estos datos serán almacenados en un Data Lake, procesados para un Data W
 
 
 ## 🏛️ Arquitectura
+
+![Diagrama de Arquitectura](scripts/resources/architecture_diagram.png)
+
 1. Ingesta de datos
     - Se extraen los datos desde la API de Spotify usando DLT.
     - Los datos se almacenan en GCS como archivos Parquet.
