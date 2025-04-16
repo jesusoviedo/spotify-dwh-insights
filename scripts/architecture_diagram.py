@@ -56,12 +56,12 @@ with Diagram(
         gcs_terraform = GCS("GCS")
 
     api_spotify >> docker_2
+    docker_2 << api_spotify
     docker_2 >> dlt
-    dlt >> docker_2
-    docker_2 >> api_spotify
+    dlt << docker_2
 
     dlt >> gcs
-    gcs >> dlt
+    gcs << dlt
     dlt >> bq
 
     dbt >> docker_1
@@ -70,7 +70,7 @@ with Diagram(
     docker_1 << bq
 
     bq >> looker
-    looker >> bq
+    looker << bq
 
     terraform >> gcs_terraform
 
