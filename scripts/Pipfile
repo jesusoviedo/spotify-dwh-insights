@@ -10,6 +10,7 @@ pandas = "*"
 pyarrow = "*"
 google-cloud-storage = "*"
 requests-cache = "*"
+diagrams = "*"
 
 [dev-packages]
 pre-commit = "*"
