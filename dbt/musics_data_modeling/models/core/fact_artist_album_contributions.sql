@@ -83,9 +83,3 @@ INNER JOIN album_artists
 ON dim_albums.album_id = album_artists.album_id
 INNER JOIN dim_artists
 ON album_artists.artist_id = dim_artists.artist_id
-
-
-
-
-
-

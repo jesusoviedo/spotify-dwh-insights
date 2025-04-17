@@ -29,5 +29,3 @@ FROM artists_images
 {% if var('is_test', default=false) %}
   limit 100
 {% endif %}
-
-

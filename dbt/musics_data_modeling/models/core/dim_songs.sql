@@ -77,5 +77,3 @@ LEFT JOIN artists
 ON songs.song_id = artists.song_id
 LEFT JOIN albums
 ON songs.album_id = albums.album_id
-
-
