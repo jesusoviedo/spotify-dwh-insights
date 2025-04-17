@@ -75,6 +75,11 @@ jobs:
     needs: prod 
     steps:
 
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: ${{ secrets.GCP_CREDENTIALS_JSON }}
+
       - name: Get Kestra instance IP
         run: |
           IP=$(gcloud compute instances describe kestra-instance \
