@@ -1,4 +1,4 @@
-name: quality-check
+name: Code Style & Quality
 
 on:
   pull_request:
