@@ -113,12 +113,10 @@ Pasos clave:
 Este workflow se ejecuta automáticamente en cada push o pull request a cualquier rama, y se encarga de aplicar validaciones automáticas de estilo y calidad sobre los archivos modificados.
 
 Pasos clave:
+
 - Realiza el checkout del código fuente.
 - Instala Python y `pre-commit`, junto con dependencias del sistema necesarias (por ejemplo, para gitleaks).
-- Compara los cambios entre el commit base y el commit actual:
-  - En un pull request, compara contra la rama base.
-  - En un push directo, compara con el commit anterior (HEAD^).
-- Ejecuta los hooks configurados en `.pre-commit-config.yaml` (por ejemplo, `isort`, `black`, `gitleaks`, etc.).
+- Ejecuta los hooks configurados en `.pre-commit-config.yaml` (por ejemplo, `isort`, `black`, `gitleaks`, etc.) sobre todos los archivos del repositorio.
 
 Este workflow asegura que cualquier cambio subido al repositorio pase por validaciones automáticas antes de ser fusionado
 
