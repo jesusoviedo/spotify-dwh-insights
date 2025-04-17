@@ -1,0 +1,36 @@
+name: Code Style & Quality
+
+on:
+  pull_request:
+    branches: 
+        - main
+    paths: 
+        - "**/*"
+
+jobs:
+  pre-commit:
+    name: Run Pre-Commit Hooks
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Fetch origin/main
+        run: git fetch origin main --depth=1
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install pre-commit
+        run: pip install pre-commit
+
+      - name: Install system dependencies (for gitleaks)
+        run: sudo apt-get update && sudo apt-get install -y git
+
+      - name: Run pre-commit on modified files
+        run: |
+          pre-commit install
+          pre-commit run --from-ref origin/main --to-ref HEAD --show-diff-on-failure
