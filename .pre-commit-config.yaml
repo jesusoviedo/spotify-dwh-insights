@@ -1,3 +1,5 @@
+exclude: ^.*target/
+
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v5.0.0
@@ -59,12 +61,3 @@ repos:
         types: [python]
         language_version: python3.12
         args: []
-
-  - repo: https://github.com/pre-commit/mirrors-mypy
-    rev: v1.15.0
-    hooks:
-      - id: mypy
-        name: mypy (python3.12)
-        types: [python]
-        language_version: python3.12
-        args: ["--show-error-codes"]

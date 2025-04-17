@@ -57,4 +57,3 @@ triggers:
     cron: "0 8,20 * * *"
     timezone: "America/Asuncion"
     description: "Trigger that runs twice a day at 8 AM and 8 PM"
-

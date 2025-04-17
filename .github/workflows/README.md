@@ -7,8 +7,8 @@ Este proyecto utiliza **GitHub Actions** para automatizar aspectos clave del cic
 3. Validación y despliegue de flujos de trabajo de Kestra.
 4. Construcción y publicación de una imagen Docker a DockerHub cuando se modifican los archivos del pipeline.
 5. Escaneo automático de secretos sensibles con GitGuardian.
+6. Validación de estilo y calidad de código con Pre-Commit.
 
----
 
 ## Secretos requeridos
 
@@ -34,7 +34,6 @@ Asegúrate de configurar los siguientes secretos en tu repositorio para que los 
 | `DOCKERHUB_TOKEN`               | Token de acceso a Docker Hub                                |
 | `GITGUARDIAN_API_KEY`           | API key para realizar escaneos de seguridad con GitGuardian |
 
----
 
 ## Workflows disponibles
 
@@ -50,7 +49,6 @@ Pasos principales:
 - Espera que la instancia esté saludable.
 - Lanza el flujo `init-prod-kv` para inicializar claves necesarias en el KV Store.
 
----
 
 ### 2. `ci-cd-deploy-instance.yml`: despliegue de la instancia de Kestra en GCP
 
@@ -64,7 +62,6 @@ Pasos principales:
 - Copia los archivos necesarios a la instancia de GCP.
 - Reinicia el entorno de ejecución Docker en GCP para aplicar cambios.
 
----
 
 ### 3. `ci-cd-deploy-flows.yml`: validación y despliegue de flujos Kestra
 
@@ -86,7 +83,6 @@ Consta de tres jobs secuenciales:
 - Espera que la instancia esté saludable.
 - Lanza el flujo `init-prod-kv` para inicializar claves necesarias en el KV Store.
 
----
 
 ### 4. `ci-cd-build-deploy-docker-image.yml`: construir y publicar imagen Docker
 
@@ -102,7 +98,6 @@ Pasos clave:
   - `v<AAAAMMDD>` (con la fecha actual)
 - Publica ambas imágenes a Docker Hub bajo `rj24/spotify-pipeline`.
 
----
 
 ### 5. `ci-sec-secrets-scan.yml`: escaneo de secretos sensibles
 
@@ -113,7 +108,18 @@ Pasos clave:
 - Realiza checkout completo del repositorio (con historial).
 - Ejecuta `ggshield` usando la acción oficial de **GitGuardian**.
 
----
+
+### 6. `ci-qa-pre-commit.yml`: validación de estilo y calidad de código
+Este workflow se ejecuta automáticamente en cada push o pull request a cualquier rama, y se encarga de aplicar validaciones automáticas de estilo y calidad sobre los archivos modificados.
+
+Pasos clave:
+
+- Realiza el checkout del código fuente.
+- Instala Python y `pre-commit`, junto con dependencias del sistema necesarias (por ejemplo, para gitleaks).
+- Ejecuta los hooks configurados en `.pre-commit-config.yaml` (por ejemplo, `isort`, `black`, `gitleaks`, etc.) sobre todos los archivos del repositorio.
+
+Este workflow asegura que cualquier cambio subido al repositorio pase por validaciones automáticas antes de ser fusionado
+
 
 ## Estado de los Workflows CI/CD
 
@@ -124,3 +130,4 @@ Pasos clave:
 | Despliegue de Flujos Kestra        | [![CI-CD-Deploy-Kestra-Flows](https://github.com/jesusoviedo/spotify-dwh-insights/actions/workflows/ci-cd-deploy-flows.yml/badge.svg)](https://github.com/jesusoviedo/spotify-dwh-insights/actions/workflows/ci-cd-deploy-flows.yml) |
 | Docker Build & Deploy              | [![CI-CD-Build-Deploy-Docker](https://github.com/jesusoviedo/spotify-dwh-insights/actions/workflows/ci-cd-build-deploy-docker-image.yml/badge.svg)](https://github.com/jesusoviedo/spotify-dwh-insights/actions/workflows/ci-cd-build-deploy-docker-image.yml) |
 | Escaneo de Secretos         | [![CI-SEC-Secrets-Scan](https://github.com/jesusoviedo/spotify-dwh-insights/actions/workflows/ci-sec-secrets-scan.yml/badge.svg)](https://github.com/jesusoviedo/spotify-dwh-insights/actions/workflows/ci-sec-secrets-scan.yml) |
+| Validación de Código         | [![Code Style & Quality](https://github.com/jesusoviedo/spotify-dwh-insights/actions/workflows/ci-qa-pre-commit.yml/badge.svg)](https://github.com/jesusoviedo/spotify-dwh-insights/actions/workflows/ci-qa-pre-commit.yml) |

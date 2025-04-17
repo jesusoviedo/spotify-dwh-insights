@@ -23,5 +23,3 @@ FROM artists_genres
 {% if var('is_test', default=false) %}
   limit 100
 {% endif %}
-
-
