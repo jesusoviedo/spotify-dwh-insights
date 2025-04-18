@@ -3,7 +3,7 @@ namespace: spotify-dwh-insights.prod
 description: |
   This flow initializes the Key-Value (KV) storage for the Spotify DWH Insights project.
   It sets up various configuration parameters such as GCP project ID, dataset names, and bucket names.
-
+  
 
 tasks:
   - id: gcp_location
