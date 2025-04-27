@@ -11,7 +11,7 @@
 [![pre-commit](https://img.shields.io/badge/pre--commit-enabled-brightgreen?logo=pre-commit)](https://github.com/pre-commit/pre-commit) [![Python](https://img.shields.io/badge/Python-3.13-blue?logo=python)](https://www.python.org/) [![Database](https://img.shields.io/badge/Database-BigQuery-yellow?logo=googlecloud)](https://cloud.google.com/bigquery) [![Orchestration](https://img.shields.io/badge/Orchestration-Kestra-blueviolet?logo=apacheairflow)](https://kestra.io/) [![Transformation](https://img.shields.io/badge/Transformation-dbt-FF694B?logo=dbt)](https://www.getdbt.com/) [![Data Loading](https://img.shields.io/badge/Data%20Loader-dlt-32CD32)](https://github.com/duckdblabs/dlt) 
 [![Docker](https://img.shields.io/badge/Container-Docker-2496ED?logo=docker)](https://www.docker.com/)
 [![Docker Compose](https://img.shields.io/badge/Despliegue-Docker--Compose-1488C6?logo=docker)](https://docs.docker.com/compose/)
-[![IaC](https://img.shields.io/badge/IaC-Terraform-FF7B00?logo=terraform)](https://www.terraform.io/) [![CI/CD](https://img.shields.io/badge/CI/CD-GitHub%20Actions-purple?logo=githubactions)](https://github.com/features/actions)
+[![IaC](https://img.shields.io/badge/IaC-Terraform-FF7B00?logo=terraform)](https://www.terraform.io/) [![CI/CD](https://img.shields.io/badge/CI/CD-GitHub%20Actions-purple?logo=githubactions)](https://github.com/features/actions) [![Licencia MIT](https://img.shields.io/badge/license-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 
 
 Este proyecto de Data Engineering tiene como objetivo extraer información de la API de Spotify sobre los lanzamientos recientes de álbumes, obtener detalles de sus pistas y los datos de los artistas involucrados. 
@@ -124,6 +124,10 @@ Este proyecto requiere Terraform instalado para poder gestionar y desplegar la i
 Si necesitas una referencia rápida sobre cómo instalar y utilizar Terraform, consulta el archivo [`terraform_basics.md`](./docs/terraform_basics.md), donde encontrarás información sobre la instalación, configuración y comandos básicos de Terraform.
 
 
+### 🛠️ Ejecutando GitHub Actions localmente con `act`
+Si deseas ejecutar los workflows de GitHub Actions localmente, puedes usar la herramienta `act`. Para obtener una guía completa sobre cómo configurarla y usarla, consulta el archivo  [`basic-guide-act.md`](./docs/basic-guide-act.md)
+
+
 ## 📂 Organización del Proyecto
 A continuación, se describe el contenido de cada carpeta principal dentro del proyecto para facilitar su comprensión y uso.
 
@@ -174,8 +178,6 @@ Las contribuciones son bienvenidas. Si tienes alguna idea o mejora, no dudes en 
 
 
 ## 📜 Licencia
-[![Licencia MIT](https://img.shields.io/badge/license-MIT-blue.svg)](https://opensource.org/licenses/MIT)
-
 Este proyecto está licenciado bajo la Licencia MIT. Para más detalles, consulta el archivo [`LICENSE`](./LICENSE).
 
 
