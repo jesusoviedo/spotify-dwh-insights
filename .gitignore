@@ -181,3 +181,4 @@ cython_debug/
 **/spotify_cache.sqlite
 kestra/flows/tutorial_*
 .vscode/
+.secrets
